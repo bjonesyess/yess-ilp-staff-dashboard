@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YESS ILP — Staff Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--green:#4A7C3F;--green-mid:#6BAE5E;--green-light:#EBF4E9;--green-dark:#2E5228;--amber:#C47D2A;--amber-light:#FDF3E3;--amber-dark:#7A4D1A;--red:#C0392B;--red-light:#FDECEA;--purple:#6C3483;--purple-light:#F4ECF7;--bg:#F5F6F0;--surface:#FFFFFF;--surface2:#F9FAF5;--border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.12);--text:#1C1F18;--muted:#5A6052;--subtle:#8A9080;--radius:10px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,0.05),0 4px 12px rgba(0,0,0,0.04);--shadow-md:0 2px 8px rgba(0,0,0,0.08),0 8px 24px rgba(0,0,0,0.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--green-dark);display:flex;flex-direction:column;position:fixed;height:100vh;top:0;left:0;z-index:100;overflow-y:auto}
+.main{margin-left:230px;flex:1;padding:28px 32px}
+.sb-header{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sb-logo-mark{width:34px;height:34px;background:var(--green-mid);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.sb-logo-text{font-size:13px;font-weight:600;color:#fff;line-height:1.3}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,0.5)}
+.sb-role-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.8)}
+.sb-role-dot{width:6px;height:6px;border-radius:50%;background:var(--green-mid)}
+.sb-nav{flex:1;padding:12px 10px}
+.sb-section-label{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:0 8px;margin:14px 0 4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;color:rgba(255,255,255,0.65);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.sb-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+.sb-item.active{background:rgba(255,255,255,0.15);color:#fff}
+.sb-badge{margin-left:auto;background:var(--amber);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+.sb-footer{padding:14px 10px;border-top:1px solid rgba(255,255,255,0.1)}
+.sb-signout{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);font-size:12px;color:rgba(255,255,255,0.5);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.sb-signout:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.07)}
+.screen{display:none}.screen.active{display:block}
+.pin-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
+.pin-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:40px 36px;width:100%;max-width:380px;text-align:center;box-shadow:var(--shadow-md)}
+.pin-logo{width:52px;height:52px;background:var(--green-light);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:11px;font-weight:700;color:var(--green-dark)}
+.pin-title{font-size:20px;font-weight:600;margin-bottom:4px}
+.pin-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.pin-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.pin-box{width:54px;height:62px;text-align:center;font-size:26px;font-family:'JetBrains Mono',monospace;font-weight:500;border:1.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text)}
+.pin-box:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-light)}
+.pin-roles{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.pin-role-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.pin-role-name{font-size:12px;font-weight:500}
+.pin-role-code{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--green)}
+.pin-err{font-size:12px;color:var(--red);margin-top:8px;display:none}
+.page-hd{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
+.page-sub{font-size:13px;color:var(--muted)}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:18px 20px;box-shadow:var(--shadow)}
+.card+.card{margin-top:12px}
+.card-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.card-sub{font-size:12px;color:var(--muted)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.stat-n{font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.stat-l{font-size:11px;color:var(--muted);font-weight:500}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.badge-green{background:var(--green-light);color:var(--green-dark)}
+.badge-amber{background:var(--amber-light);color:var(--amber-dark)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-purple{background:var(--purple-light);color:var(--purple)}
+.badge-gray{background:#EDECE8;color:var(--muted)}
+.alert{padding:11px 14px;border-radius:var(--radius-sm);font-size:12px;line-height:1.6;margin-bottom:14px}
+.alert-green{background:var(--green-light);color:var(--green-dark);border:1px solid #B8DDB2}
+.alert-amber{background:var(--amber-light);color:var(--amber-dark);border:1px solid #F5C87A}
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'Inter',sans-serif;transition:all .15s}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn-primary{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-sm{padding:5px 11px;font-size:11px}
+.btn-lg{padding:11px 22px;font-size:13px}
+.btn-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.pbar-wrap{background:#E8EBE2;border-radius:20px;overflow:hidden}
+.pbar{border-radius:20px;transition:width .5s ease}
+.row-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.row-item:last-child{border-bottom:none}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;margin-top:14px;letter-spacing:.03em;text-transform:uppercase}
+input[type=text],input[type=date],select,textarea{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 11px;width:100%;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-light)}
+textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px}
+.chk-done{background:var(--green);border-color:var(--green);color:#fff}
+.chk-pending{background:var(--amber-light);border-color:var(--amber);color:var(--amber-dark)}
+.note-box{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 11px;font-size:11px;color:var(--muted);margin-top:6px;border-left:2px solid var(--green);line-height:1.6}
+.slabel{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:10px}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.loading{display:flex;align-items:center;gap:8px;padding:20px;color:var(--muted);font-size:12px}
+.spin{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:32px;margin-bottom:10px}
+.empty-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.empty-sub{font-size:12px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.modal-close{float:right;background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted)}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--green-dark);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:500;transform:translateY(80px);opacity:0;transition:all .3s ease;pointer-events:none;max-width:320px}
+#toast.show{transform:translateY(0);opacity:1}
+.ann-card{background:linear-gradient(135deg,var(--green-dark) 0%,#3D6B33 100%);border-radius:var(--radius);padding:18px 20px;color:#fff;margin-bottom:12px}
+.ann-from{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.65;margin-bottom:6px}
+.ann-msg{font-size:14px;font-weight:500;line-height:1.5}
+.ann-date{font-size:11px;opacity:.55;margin-top:8px}
+.act-section{margin-bottom:20px}
+.act-section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green-dark);background:var(--green-light);padding:6px 12px;border-radius:var(--radius-sm);margin-bottom:10px}
+.act-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.act-row:last-child{border-bottom:none}
+.act-label{font-size:12px;font-weight:500}
+.act-detail{font-size:11px;color:var(--muted);margin-top:3px}
+@media(max-width:768px){.sidebar{width:200px}.main{margin-left:200px;padding:20px 16px}.stat-grid{grid-template-columns:repeat(2,1fr)}.form-row{grid-template-columns:1fr}}
+@media(max-width:640px){
+.sidebar{transform:translateX(-100%);transition:transform .25s ease;width:240px;z-index:200}
+.sidebar.open{transform:translateX(0)}
+.main{margin-left:0!important;padding:60px 14px 16px}
+.stat-grid{grid-template-columns:repeat(2,1fr)!important}
+.form-row{grid-template-columns:1fr!important}
+.page-title{font-size:18px}
+#ceo-stats{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(min-width:641px){#mob-menu-btn{display:none!important}.mob-overlay{display:none!important}}
+#mob-menu-btn{position:fixed;top:12px;left:12px;z-index:250;background:var(--green-dark);border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;display:none}
+#mob-menu-btn span{width:20px;height:2px;background:#fff;border-radius:2px;display:block}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:150}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<button id="mob-menu-btn" onclick="toggleMobileMenu()"><span></span><span></span><span></span></button>
+<div class="mob-overlay" id="mob-overlay" onclick="toggleMobileMenu()"></div>
+<!-- LOGIN -->
+<div id="login-screen">
+<div class="pin-wrap"><div class="pin-card">
+<div class="pin-logo">YESS</div>
+<div class="pin-title">Staff Portal</div>
+<div class="pin-sub">ILP Program &bull; Ashford &amp; Reserve</div>
+<div class="pin-roles">
+<div class="pin-role-row"><span class="pin-role-name">Life Coach</span><span class="pin-role-code">2222 &middot; 3333</span></div>
+<div class="pin-role-row"><span class="pin-role-name">Program Director</span><span class="pin-role-code">0000</span></div>
+<div class="pin-role-row"><span class="pin-role-name">CEO</span><span class="pin-role-code">8888</span></div>
+<div class="pin-role-row"><span class="pin-role-name">System Administration</span><span class="pin-role-code">1111</span></div>
+<div class="pin-role-row"><span class="pin-role-name">Life Coach Manager</span><span class="pin-role-code">6666</span></div>
+</div>
+<div class="pin-inputs">
+<input class="pin-box" id="p1" maxlength="1" type="password" inputmode="numeric" oninput="pinMove(this,'p2')">
+<input class="pin-box" id="p2" maxlength="1" type="password" inputmode="numeric" oninput="pinMove(this,'p3')">
+<input class="pin-box" id="p3" maxlength="1" type="password" inputmode="numeric" oninput="pinMove(this,'p4')">
+<input class="pin-box" id="p4" maxlength="1" type="password" inputmode="numeric" oninput="pinMove(this,null)">
+</div>
+<button class="btn btn-primary btn-lg" style="width:100%" onclick="doLogin()">Sign in</button>
+<div class="pin-err" id="pin-err">Incorrect PIN. Please try again.</div>
+</div></div>
+</div>
+
+<!-- APP -->
+<div id="app-screen" style="display:none">
+<div class="app">
+<aside class="sidebar">
+<div class="sb-header">
+<div class="sb-logo"><div class="sb-logo-mark">YESS</div><div><div class="sb-logo-text">ILP Staff Portal</div><div class="sb-logo-sub">yess4youth.org</div></div></div>
+<div class="sb-role-badge"><div class="sb-role-dot"></div><span id="sb-role-label">Staff</span></div>
+</div>
+<nav class="sb-nav">
+<div id="nav-coach" style="display:none">
+<div class="sb-section-label">My Work</div>
+<button class="sb-item active" onclick="nav('coach-dash',this)">&#9632; Dashboard</button>
+<button class="sb-item" onclick="nav('verify',this)">&#10003; Verify Entries <span class="sb-badge" id="verify-badge" style="display:none">0</span></button>
+<button class="sb-item" onclick="nav('caseload',this)">&#9786; My Caseload</button>
+<button class="sb-item" onclick="nav('activity-tracker',this)">&#9998; Monthly Activity</button>
+<button class="sb-item" onclick="nav('issp',this)">&#9998; Goal Plans (ISSP)</button>
+<button class="sb-item" onclick="nav('case-notes',this)">&#9997; Case Notes</button>
+<button class="sb-item" onclick="nav('documents',this)">&#128194; Documents</button>
+<button class="sb-item" onclick="nav('visits',this)">&#127968; Visits</button>
+<button class="sb-item" onclick="nav('coach-clothing',this)">&#128248; Clothing Allowance</button>
+<div class="sb-section-label">Program</div>
+<button class="sb-item" onclick="nav('announcements',this)">&#128276; Announcements</button>
+</div>
+<div id="nav-director" style="display:none">
+<div class="sb-section-label">Program</div>
+<button class="sb-item active" onclick="nav('dir-dash',this)">&#9632; Overview</button>
+<button class="sb-item" onclick="nav('roster',this)">&#9786; Youth Roster</button>
+<button class="sb-item" onclick="nav('add-youth',this)">&#43; Add Youth</button>
+<button class="sb-item" onclick="nav('dir-activity',this)">&#9998; Activity Reports</button>
+<button class="sb-item" onclick="nav('grievances',this)">&#9997; Grievances</button>
+<button class="sb-item" onclick="nav('send-announcement',this)">&#128228; Send Announcement</button>
+<button class="sb-item" onclick="nav('dir-documents',this)">&#128194; All Documents</button>
+<button class="sb-item" onclick="nav('dir-clothing',this)">&#128248; Clothing Allowance</button>
+<div class="sb-section-label">Reporting</div>
+<button class="sb-item" onclick="nav('exports',this)">&#8595; Export &amp; Reports</button>
+</div>
+<div id="nav-ceo" style="display:none">
+<div class="sb-section-label">Executive</div>
+<button class="sb-item active" onclick="nav('ceo-dash',this)">&#9632; Executive Overview</button>
+<button class="sb-item" onclick="nav('ceo-roster',this)">&#9786; All Youth</button>
+<button class="sb-item" onclick="nav('ceo-announcements',this)">&#128228; Announcements</button>
+<button class="sb-item" onclick="nav('ceo-clothing',this)">&#128248; Clothing Allowance</button>
+<button class="sb-item" onclick="nav('ceo-eom',this)">&#128202; End of Month Report</button>
+<button class="sb-item" onclick="nav('ceo-exports',this)">&#8595; Reports &amp; Exports</button>
+</div>
+<div id="nav-lcmanager" style="display:none">
+<div class="sb-section-label">Referrals</div>
+<button class="sb-item active" onclick="nav("lcm-dash",this)">&#9632; Referral Pipeline</button>
+<button class="sb-item" onclick="nav("lcm-intake",this)">&#9998; Log Intake Interview</button>
+<button class="sb-item" onclick="nav("lcm-assign",this)">&#9786; Assign Life Coach</button>
+<div class="sb-section-label">Oversight</div>
+<button class="sb-item" onclick="nav("lcm-caseloads",this)">&#128101; All Caseloads</button>
+<button class="sb-item" onclick="nav("lcm-announcement",this)">&#128228; Announce to Coaches</button>
+</div>
+<div id="nav-sysadmin" style="display:none">
+<div class="sb-section-label">Operations</div>
+<button class="sb-item active" onclick="nav('sa-dash',this)">&#9632; Operations Overview</button>
+<button class="sb-item" onclick="nav('sa-roster',this)">&#9786; Youth Roster</button>
+<button class="sb-item" onclick="nav('add-youth',this)">&#43; Add Youth</button>
+<button class="sb-item" onclick="nav('sa-activity',this)">&#9998; Activity Reports</button>
+<button class="sb-item" onclick="nav('sa-grievances',this)">&#9997; Grievances</button>
+<button class="sb-item" onclick="nav('sa-clothing',this)">&#128248; Clothing Allowance</button>
+<button class="sb-item" onclick="nav('sa-documents',this)">&#128194; All Documents</button>
+<div class="sb-section-label">Reporting</div>
+<button class="sb-item" onclick="nav('sa-eom',this)">&#128202; End of Month Report</button>
+<button class="sb-item" onclick="nav('sa-exports',this)">&#8595; Export &amp; Reports</button>
+<div class="sb-section-label">System</div>
+<button class="sb-item" onclick="nav('sa-staff',this)">&#9881; Staff &amp; PIN Management</button>
+</div>
+</nav>
+<div class="sb-footer">
+<div style="font-size:11px;color:rgba(255,255,255,0.4);padding:0 8px;margin-bottom:6px" id="sb-user-name"></div>
+<button class="sb-signout" onclick="signOut()">&#8592; Sign out</button>
+</div>
+</aside>
+<main class="main">
+<!-- COACH DASH -->
+<div class="screen" id="s-coach-dash">
+<div class="page-hd"><div><div class="page-title" id="coach-dash-title">Good morning</div><div class="page-sub" id="coach-dash-sub">Loading your caseload...</div></div><button class="btn btn-primary btn-sm" onclick="nav('activity-tracker',null)">+ New Activity Report</button></div>
+<div id="coach-dash-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="coach-dash-content" style="display:none">
+<div class="stat-grid" id="coach-stats"></div>
+<div class="slabel">Pending verifications</div><div id="coach-pending-list"></div>
+<div class="slabel" style="margin-top:20px">My caseload</div><div id="coach-caseload-summary"></div>
+</div>
+</div>
+
+<!-- VERIFY -->
+<div class="screen" id="s-verify">
+<div class="page-hd"><div><div class="page-title">Verify Entries</div><div class="page-sub">Review and verify youth goal submissions</div></div></div>
+<div id="verify-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="verify-list"></div>
+</div>
+
+<!-- CASELOAD -->
+<div class="screen" id="s-caseload">
+<div class="page-hd"><div><div class="page-title">My Caseload</div><div class="page-sub">All active youth</div></div></div>
+<div id="caseload-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="caseload-list"></div>
+</div>
+
+<!-- MONTHLY ACTIVITY TRACKER -->
+<div class="screen" id="s-activity-tracker">
+<div class="page-hd"><div><div class="page-title">Monthly Activity Tracker</div><div class="page-sub">YESS Monthly Activity Form</div></div></div>
+<div class="card" style="margin-bottom:14px">
+<div class="form-row">
+<div><label>Youth</label><select id="at-youth" onchange="loadYouthForActivity()"><option value="">-- Select youth --</option></select></div>
+<div><label>Month / Year</label><select id="at-month"><option>July 2026</option><option>June 2026</option><option>May 2026</option><option>April 2026</option></select></div>
+</div>
+<div class="form-row">
+<div><label>Current Tier</label><select id="at-tier"><option>1</option><option>2</option><option>3</option></select></div>
+<div><label>Employment Status</label><select id="at-emp"><option>Unemployed</option><option>Employed Part-Time</option><option>Employed Full-Time</option><option>In School</option><option>In School + Employed</option></select></div>
+</div>
+</div>
+<div class="act-section"><div class="act-section-title">ISSP Activity</div>
+<div class="card"><div class="act-row"><div class="act-label">Complete Monthly Goal Tracker</div><span class="badge badge-gray">NYTD</span><select style="width:70px;padding:4px;font-size:11px" id="at-issp-complete"><option>NO</option><option>YES</option></select></div></div>
+</div>
+<div class="act-section"><div class="act-section-title">Financial Independence</div>
+<div class="card">
+<div class="act-row"><div class="act-label">Monthly Budget</div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-budget"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Check Stub #1</div><div class="act-detail">Employer: <input type="text" id="at-cs1-emp" placeholder="Employer" style="font-size:11px;padding:3px 6px;width:120px;display:inline"> Net: <input type="text" id="at-cs1-net" placeholder="$0.00" style="font-size:11px;padding:3px 6px;width:65px;display:inline"></div></div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-cs1"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Check Stub #2</div><div class="act-detail">Employer: <input type="text" id="at-cs2-emp" placeholder="Employer" style="font-size:11px;padding:3px 6px;width:120px;display:inline"> Net: <input type="text" id="at-cs2-net" placeholder="$0.00" style="font-size:11px;padding:3px 6px;width:65px;display:inline"></div></div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-cs2"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Bank Statements / Savings</div><div class="act-detail">Balance increased? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-savings-inc"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-bank"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">YESS Rent Saving Deposit</div><div class="act-detail">Amount: <input type="text" id="at-rent-deposit" placeholder="$0.00" style="font-size:11px;padding:3px 6px;width:75px;display:inline"></div></div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-rent"><option>NO</option><option>YES</option></select></div>
+</div></div>
+<div class="act-section"><div class="act-section-title">Employment / Career</div>
+<div class="card">
+<div class="act-row"><div class="act-label">Weekly Work Schedule #1</div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-wws1"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div class="act-label">Weekly Work Schedule #2</div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-wws2"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div class="act-label">Job Search Verification #1</div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-jsv1"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div class="act-label">Job Search Verification #2</div><span class="badge badge-gray">NYTD/Financial</span><select style="width:70px;padding:4px;font-size:11px" id="at-jsv2"><option>NO</option><option>YES</option></select></div>
+</div></div>
+<div class="act-section"><div class="act-section-title">Monthly Contacts Checklist</div>
+<div class="card">
+<div class="act-row"><div><div class="act-label">Apartment Check #1</div><div class="act-detail">Satisfactory? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-apt1-sat"><option>NO</option><option>YES</option></select> Follow-up: <input type="date" id="at-apt1-fu" style="font-size:11px;padding:3px 6px;width:125px;display:inline"></div></div><span class="badge badge-gray">CMCV/ECEM</span><select style="width:70px;padding:4px;font-size:11px" id="at-apt1"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Apartment Check #2</div><div class="act-detail">Satisfactory? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-apt2-sat"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray">CMCV/ECEM</span><select style="width:70px;padding:4px;font-size:11px" id="at-apt2"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Life Coach Visit #1</div><div class="act-detail">Youth available? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-lcv1-avail"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray">CMCV/LCC</span><select style="width:70px;padding:4px;font-size:11px" id="at-lcv1"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Life Coach Visit #2</div><div class="act-detail">Youth available? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-lcv2-avail"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray">CMCV/LCC</span><select style="width:70px;padding:4px;font-size:11px" id="at-lcv2"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div class="act-label">Town Hall Attended</div><span class="badge badge-gray">CMCV/LCC</span><select style="width:70px;padding:4px;font-size:11px" id="at-townhall"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Grocery List #1</div><div class="act-detail">On time? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-gl1-time"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray"></span><select style="width:70px;padding:4px;font-size:11px" id="at-gl1"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Grocery Receipt #1</div><div class="act-detail">On time? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-gr1-time"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray"></span><select style="width:70px;padding:4px;font-size:11px" id="at-gr1"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Grocery List #2</div><div class="act-detail">On time? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-gl2-time"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray"></span><select style="width:70px;padding:4px;font-size:11px" id="at-gl2"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Grocery Receipt #2</div><div class="act-detail">On time? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-gr2-time"><option>NO</option><option>YES</option></select></div></div><span class="badge badge-gray"></span><select style="width:70px;padding:4px;font-size:11px" id="at-gr2"><option>NO</option><option>YES</option></select></div>
+</div></div>
+<div class="act-section"><div class="act-section-title">Academic / Career</div>
+<div class="card">
+<div class="act-row"><div class="act-label">Post-secondary or employed 10+ hrs/wk?</div><span class="badge badge-gray">Academic/Career</span><select style="width:70px;padding:4px;font-size:11px" id="at-postsec"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">GED Pre-Test #1</div><div class="act-detail">Date in SCORE: <input type="date" id="at-ged1-score" style="font-size:11px;padding:3px 6px;width:125px;display:inline"></div></div><span class="badge badge-gray">Academic Support</span><select style="width:70px;padding:4px;font-size:11px" id="at-ged1"><option>NO</option><option>YES</option></select></div>
+</div></div>
+<div class="act-section"><div class="act-section-title">Program Warnings / Incidents</div>
+<div class="card">
+<div class="act-row"><div><div class="act-label">30-Day Discharge Warning?</div><div class="act-detail">Issued: <input type="date" id="at-w30-issued" style="font-size:11px;padding:3px 6px;width:125px;display:inline"> Ending: <input type="date" id="at-w30-end" style="font-size:11px;padding:3px 6px;width:125px;display:inline"></div></div><select style="width:70px;padding:4px;font-size:11px" id="at-w30"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">60-Day Discharge Notice?</div><div class="act-detail">Issued: <input type="date" id="at-w60-issued" style="font-size:11px;padding:3px 6px;width:125px;display:inline"> Discharge: <input type="date" id="at-w60-discharge" style="font-size:11px;padding:3px 6px;width:125px;display:inline"></div></div><select style="width:70px;padding:4px;font-size:11px" id="at-w60"><option>NO</option><option>YES</option></select></div>
+<div class="act-row"><div><div class="act-label">Reportable Incident?</div><div class="act-detail">Reported in GAScore within 24hrs? <select style="width:65px;padding:3px;font-size:11px;display:inline" id="at-inc-gascore"><option>NO</option><option>YES</option></select></div></div><select style="width:70px;padding:4px;font-size:11px" id="at-incident"><option>NO</option><option>YES</option></select></div>
+</div></div>
+<div class="card">
+<div class="slabel">Signatures</div>
+<div class="form-row">
+<div><label>Life Coach Name</label><input type="text" id="at-coach-sig" placeholder="Full name"></div>
+<div><label>Signature Date</label><input type="date" id="at-sig-date"></div>
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="saveActivityTracker()">Save to Airtable</button>
+<button class="btn" onclick="toast('PDF -- connect via Zapier to Google Drive')">Generate PDF</button>
+</div>
+<div id="at-save-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+</div>
+
+<!-- ISSP -->
+<div class="screen" id="s-issp">
+<div class="page-hd"><div><div class="page-title">Goal Plans (ISSP)</div><div class="page-sub">Initial/Reset Goal Planning -- 7 domains</div></div><button class="btn btn-primary btn-sm" onclick="openNewISSP()">+ New Goal Plan</button></div>
+<div id="issp-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="issp-list"></div>
+</div>
+
+<!-- CASE NOTES -->
+<div class="screen" id="s-case-notes">
+<div class="page-hd"><div><div class="page-title">Case Notes</div><div class="page-sub">Log and review case notes</div></div><button class="btn btn-primary btn-sm" onclick="openNewNote()">+ New Note</button></div>
+<div id="notes-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="notes-list"></div>
+</div>
+
+<!-- DOCUMENTS -->
+<div class="screen" id="s-documents">
+<div class="page-hd"><div><div class="page-title">Documents</div><div class="page-sub">Documents uploaded by youth</div></div></div>
+<div id="docs-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="docs-list"></div>
+</div>
+
+<!-- VISITS -->
+<div class="screen" id="s-visits">
+<div class="page-hd"><div><div class="page-title">Visits</div><div class="page-sub">Apartment checks and home visits</div></div><button class="btn btn-primary btn-sm" onclick="openNewVisit()">+ Log Visit</button></div>
+<div id="visits-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="visits-list"></div>
+</div>
+
+<!-- ANNOUNCEMENTS READ -->
+<div class="screen" id="s-announcements">
+<div class="page-hd"><div><div class="page-title">Announcements</div><div class="page-sub">Messages from Program Director &amp; CEO</div></div></div>
+<div id="ann-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="ann-list"></div>
+</div>
+<!-- DIRECTOR DASH -->
+<div class="screen" id="s-dir-dash">
+<div class="page-hd"><div><div class="page-title">Program Overview</div><div class="page-sub" id="dir-dash-sub">YESS ILP</div></div></div>
+<div id="dir-dash-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="dir-dash-content" style="display:none">
+<div class="stat-grid" id="dir-stats"></div>
+<div class="slabel">Compliance flags</div><div id="dir-flags"></div>
+<div class="slabel" style="margin-top:20px">Tier distribution</div>
+<div id="dir-tier-dist" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px"></div>
+<div class="slabel">Domain completion</div><div class="card" id="dir-domain-bars"></div>
+</div>
+</div>
+
+<!-- ROSTER -->
+<div class="screen" id="s-roster">
+<div class="page-hd"><div><div class="page-title">Youth Roster</div><div class="page-sub">All participants</div></div></div>
+<div class="card" style="margin-bottom:14px">
+<div class="form-row">
+<div><label>Status</label><select id="f-status" onchange="renderRoster()"><option value="all">All statuses</option><option>Active</option><option>On Hold</option><option>Exited</option><option>Pending</option></select></div>
+<div><label>Site</label><select id="f-site" onchange="renderRoster()"><option value="all">All sites</option><option>Ashford - College Park (5259)</option><option>Reserve - DeKalb (5258)</option></select></div>
+</div>
+</div>
+<div id="roster-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="roster-list"></div>
+</div>
+
+<!-- ADD YOUTH -->
+<div class="screen" id="s-add-youth">
+<div class="page-hd"><div><div class="page-title">Add New Youth</div><div class="page-sub">3-step intake process</div></div></div>
+<div id="add-step-1">
+<div class="card">
+<div class="card-title" style="margin-bottom:12px">Step 1 of 3 -- Basic Information</div>
+<div class="form-row">
+<div><label>First Name</label><input type="text" id="ny-fname" placeholder="First name"></div>
+<div><label>Last Initial</label><input type="text" id="ny-lname" placeholder="L" maxlength="1"></div>
+</div>
+<div class="form-row">
+<div><label>Date of Birth</label><input type="date" id="ny-dob"></div>
+<div><label>Intake Date</label><input type="date" id="ny-admit"></div>
+</div>
+<div class="form-row">
+<div><label>SHINES Person ID</label><input type="text" id="ny-shines" placeholder="SHINES ID"></div>
+<div><label>Site</label><select id="ny-site"><option>Ashford - College Park (5259)</option><option>Reserve - DeKalb (5258)</option></select></div>
+</div>
+<div class="form-row">
+<div><label>Program</label><select id="ny-program"><option>ILP</option><option>Bridge Connect</option></select></div>
+<div><label>Life Coach</label><input type="text" id="ny-coach" placeholder="Coach name"></div>
+</div>
+<div class="form-row">
+<div><label>DFCS Case Manager</label><input type="text" id="ny-cm" placeholder="Case manager name"></div>
+<div><label>Youth PIN (4 digits)</label><input type="text" id="ny-pin" placeholder="e.g. 1234" maxlength="4"></div>
+</div>
+<div class="btn-row"><button class="btn btn-primary" onclick="addYouthStep2()">Next: Set Up Goals</button></div>
+</div>
+</div>
+<div id="add-step-2" style="display:none">
+<div class="card">
+<div class="card-title" style="margin-bottom:4px">Step 2 of 3 -- Initial Goals</div>
+<div class="card-sub" style="margin-bottom:14px">Enter one goal per domain. Steps added in first coaching session.</div>
+<div id="goal-fields-new"></div>
+<div class="btn-row">
+<button class="btn" onclick="document.getElementById('add-step-1').style.display='block';document.getElementById('add-step-2').style.display='none'">Back</button>
+<button class="btn btn-primary" onclick="addYouthStep3()">Confirm &amp; Save</button>
+</div>
+</div>
+</div>
+<div id="add-step-3" style="display:none">
+<div class="card" style="text-align:center;padding:36px">
+<div style="font-size:36px;margin-bottom:14px">&#127881;</div>
+<div style="font-size:17px;font-weight:700;margin-bottom:6px" id="add-success-name">Youth added!</div>
+<div style="font-size:12px;color:var(--muted);margin-bottom:20px">Profile and goals saved to Airtable.</div>
+<div class="btn-row" style="justify-content:center">
+<button class="btn" onclick="resetAddYouth()">Add Another</button>
+<button class="btn btn-primary" onclick="nav('roster',null)">View Roster</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- DIRECTOR ACTIVITY -->
+<div class="screen" id="s-dir-activity">
+<div class="page-hd"><div><div class="page-title">Activity Reports</div><div class="page-sub">All submitted Monthly Activity Trackers</div></div></div>
+<div id="dir-activity-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="dir-activity-list"></div>
+</div>
+
+<!-- GRIEVANCES -->
+<div class="screen" id="s-grievances">
+<div class="page-hd"><div><div class="page-title">Grievances</div><div class="page-sub">Grievance log</div></div><button class="btn btn-primary btn-sm" onclick="openNewGrievance()">+ New Grievance</button></div>
+<div id="grievances-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="grievances-list"></div>
+</div>
+
+<!-- SEND ANNOUNCEMENT -->
+<div class="screen" id="s-send-announcement">
+<div class="page-hd"><div><div class="page-title">Send Announcement</div><div class="page-sub">Broadcast a message</div></div></div>
+<div class="card">
+<label>Audience</label>
+<select id="ann-audience"><option value="all">All staff + youth</option><option value="staff">Staff only</option><option value="youth">Youth only</option><option value="coaches">Life coaches only</option></select>
+<label>Subject</label><input type="text" id="ann-subject" placeholder="e.g. Town Hall reminder -- July 15th">
+<label>Message</label><textarea id="ann-body" placeholder="Type your announcement..." style="min-height:120px"></textarea>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="sendAnnouncement()">Send Announcement</button>
+<button class="btn" onclick="aiDraftAnnouncement()">&#10022; AI Draft</button>
+</div>
+<div id="ann-sent" style="display:none;margin-top:10px" class="alert alert-green">Announcement sent and saved.</div>
+</div>
+<div style="margin-top:20px"><div class="slabel">Recent announcements</div><div id="sent-ann-list"></div></div>
+</div>
+
+<!-- DIRECTOR DOCUMENTS -->
+<div class="screen" id="s-dir-documents">
+<div class="page-hd"><div><div class="page-title">All Documents</div><div class="page-sub">Documents across all youth</div></div></div>
+<div id="dir-docs-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="dir-docs-list"></div>
+</div>
+
+<!-- EXPORTS -->
+<div class="screen" id="s-exports">
+<div class="page-hd"><div><div class="page-title">Export &amp; Reports</div><div class="page-sub">Generate reports and program summaries</div></div></div>
+<div class="card" style="margin-bottom:12px">
+<div class="card-title">Generate Monthly Activity Tracker PDF</div>
+<div class="card-sub" style="margin-bottom:12px">Pulls from Airtable. Exports via Zapier to Google Drive.</div>
+<div class="form-row">
+<div><label>Youth</label><select id="exp-youth"><option value="">-- Select --</option></select></div>
+<div><label>Month</label><select id="exp-month"><option>July 2026</option><option>June 2026</option><option>May 2026</option><option>April 2026</option></select></div>
+</div>
+<div class="btn-row"><button class="btn btn-primary" onclick="exportActivityPDF()">Trigger Export</button></div>
+<div id="exp-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+<div class="card">
+<div class="card-title">AI Program Summary</div>
+<div class="card-sub" style="margin-bottom:12px">AI-generated summary for grant reporting.</div>
+<div class="form-row">
+<div><label>Period</label><select id="sum-period"><option>July 2026</option><option>Q2 2026</option><option>Q1 2026</option></select></div>
+<div><label>Site</label><select id="sum-site"><option>Both sites</option><option>Ashford - College Park (5259)</option><option>Reserve - DeKalb (5258)</option></select></div>
+</div>
+<div class="btn-row"><button class="btn btn-primary" onclick="generateProgramSummary()">&#10022; Generate with AI</button></div>
+<div id="summary-output" style="display:none;margin-top:14px"></div>
+</div>
+</div>
+
+<!-- CEO DASH -->
+<div class="screen" id="s-ceo-dash">
+<div class="page-hd"><div><div class="page-title">Executive Overview</div><div class="page-sub">YESS ILP -- Both Sites</div></div></div>
+<div id="ceo-dash-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="ceo-dash-content" style="display:none">
+<div class="stat-grid" id="ceo-stats" style="grid-template-columns:repeat(4,1fr)"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+<div class="card"><div class="slabel" style="margin-bottom:12px">Ashford - College Park (5259)</div><div id="ceo-cp-stats"></div></div>
+<div class="card"><div class="slabel" style="margin-bottom:12px">Reserve - DeKalb (5258)</div><div id="ceo-dk-stats"></div></div>
+</div>
+<div class="card" style="margin-top:12px"><div class="slabel" style="margin-bottom:12px">Staff</div><div id="ceo-staff-perf"></div></div>
+</div>
+</div>
+
+<!-- CEO ROSTER -->
+<div class="screen" id="s-ceo-roster">
+<div class="page-hd"><div><div class="page-title">All Youth</div><div class="page-sub">Program-wide view</div></div></div>
+<div id="ceo-roster-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="ceo-roster-list"></div>
+</div>
+
+<!-- CEO ANNOUNCEMENTS -->
+<div class="screen" id="s-ceo-announcements">
+<div class="page-hd"><div><div class="page-title">Announcements</div><div class="page-sub">Send program-wide messages</div></div></div>
+<div class="card">
+<label>Message</label>
+<textarea id="ceo-ann-body" placeholder="Message to all staff and youth..." style="min-height:120px"></textarea>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="sendCEOAnnouncement()">Send to All</button>
+<button class="btn" onclick="aiDraftCEOAnnouncement()">&#10022; AI Draft</button>
+</div>
+<div id="ceo-ann-sent" style="display:none;margin-top:10px" class="alert alert-green">Sent and saved.</div>
+</div>
+<div style="margin-top:20px"><div class="slabel">Recent</div><div id="ceo-ann-list"></div></div>
+</div>
+
+<!-- CEO EXPORTS -->
+<div class="screen" id="s-ceo-exports">
+<div class="page-hd"><div><div class="page-title">Reports &amp; Exports</div><div class="page-sub">Executive-level reporting</div></div></div>
+<div class="card">
+<div class="card-title">AI Executive Narrative</div>
+<div class="card-sub" style="margin-bottom:12px">Generate a narrative for board reports or grant applications.</div>
+<div class="form-row">
+<div><label>Period</label><select id="ceo-period"><option>Q2 2026</option><option>Q1 2026</option><option>YTD 2026</option></select></div>
+<div><label>Audience</label><select id="ceo-audience"><option>Board of Directors</option><option>DFCS/Funder</option><option>Internal</option></select></div>
+</div>
+<div class="btn-row"><button class="btn btn-primary" onclick="generateExecutiveNarrative()">&#10022; Generate Narrative</button></div>
+<div id="ceo-narrative-output" style="display:none;margin-top:14px"></div>
+</div>
+</div>
+
+<!-- COACH CLOTHING ALLOWANCE -->
+<div class="screen" id="s-coach-clothing">
+<div class="page-hd"><div><div class="page-title">Clothing Allowance</div><div class="page-sub">Check balance before submitting Divvy request</div></div></div>
+<div class="card" style="margin-bottom:14px">
+<label>Select Youth</label>
+<select id="cc-youth" onchange="loadCoachClothing()"><option value="">-- Select youth --</option></select>
+</div>
+<div id="cc-summary" style="display:none">
+<div class="card" style="margin-bottom:14px" id="cc-balance-card"></div>
+<div class="card" style="margin-bottom:14px">
+<div class="card-title" style="margin-bottom:12px">Log New Purchase</div>
+<div style="font-size:11px;color:var(--muted);margin-bottom:12px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--green);line-height:1.7">
+<strong>Receipt submission instructions:</strong><br>
+1. Scan or photograph the receipt clearly<br>
+2. Write the youth's Client ID on the receipt<br>
+3. Note the total purchase amount<br>
+4. Upload the PDF to the youth's Google Drive folder: YESS ILP &rarr; [Site] &rarr; [Youth Name] &rarr; Documents &rarr; Financial &rarr; Clothing Receipts<br>
+5. Check the Receipt Uploaded box below once done
+</div>
+<div class="form-row">
+<div><label>Purchase Date</label><input type="date" id="cc-date"></div>
+<div><label>Amount</label><input type="text" id="cc-amount" placeholder="$0.00" oninput="previewClothingPurchase()"></div>
+</div>
+<label>Description</label>
+<input type="text" id="cc-desc" placeholder="e.g. Target - back to school clothing">
+<div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+<input type="checkbox" id="cc-receipt" style="width:auto">
+<label style="margin:0;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text)">Receipt uploaded to Google Drive</label>
+</div>
+<div id="cc-preview" style="display:none;margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600"></div>
+<div class="btn-row">
+<button class="btn btn-primary" id="cc-save-btn" onclick="saveClothingPurchase()" disabled>Save Purchase</button>
+</div>
+<div id="cc-save-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+<div class="card">
+<div class="slabel" style="margin-bottom:12px">Purchase History — FY2027</div>
+<div id="cc-history"></div>
+</div>
+</div>
+</div>
+
+<!-- DIRECTOR CLOTHING ALLOWANCE -->
+<div class="screen" id="s-dir-clothing">
+<div class="page-hd"><div><div class="page-title">Clothing Allowance</div><div class="page-sub">All youth — FY2027 (Jul 2026 - Jun 2027)</div></div></div>
+<div id="dir-clothing-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="dir-clothing-content"></div>
+</div>
+
+<!-- CEO CLOTHING ALLOWANCE -->
+<div class="screen" id="s-ceo-clothing">
+<div class="page-hd"><div><div class="page-title">Clothing Allowance</div><div class="page-sub">All youth — FY2027 (Jul 2026 - Jun 2027)</div></div></div>
+<div id="ceo-clothing-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="ceo-clothing-content"></div>
+</div>
+
+<!-- CEO END OF MONTH REPORT -->
+<div class="screen" id="s-ceo-eom">
+<div class="page-hd">
+<div><div class="page-title">End of Month Report</div><div class="page-sub">Admissions, discharges, and clothing allowance summary</div></div>
+<select id="eom-month" style="padding:8px 12px;font-size:12px;border-radius:var(--radius-sm);border:1px solid var(--border2);font-family:Inter,sans-serif" onchange="loadEOM()">
+<option>July 2026</option><option>June 2026</option><option>May 2026</option><option>April 2026</option><option>March 2026</option>
+</select>
+</div>
+<div id="eom-loading" class="loading"><div class="spin"></div>Loading report...</div>
+<div id="eom-content" style="display:none">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+<div class="stat-card"><div class="stat-n" style="color:var(--green)" id="eom-admissions-count">0</div><div class="stat-l">New Admissions</div></div>
+<div class="stat-card"><div class="stat-n" style="color:var(--red)" id="eom-discharges-count">0</div><div class="stat-l">Discharges</div></div>
+</div>
+<div class="card" style="margin-bottom:12px">
+<div class="slabel" style="margin-bottom:12px">New Admissions</div>
+<div id="eom-admissions-list"></div>
+</div>
+<div class="card" style="margin-bottom:12px">
+<div class="slabel" style="margin-bottom:12px">Discharges</div>
+<div id="eom-discharges-list"></div>
+</div>
+<div class="card">
+<div class="slabel" style="margin-bottom:12px">Clothing Allowance — This Month</div>
+<div id="eom-clothing-list"></div>
+<div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:12px;font-weight:600">Program Total This Month</div>
+<div style="font-size:16px;font-weight:700;color:var(--green)" id="eom-clothing-total">$0.00</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SA DASHBOARD -->
+<div class="screen" id="s-sa-dash">
+<div class="page-hd"><div><div class="page-title">Operations Overview</div><div class="page-sub" id="sa-dash-sub">YESS ILP · System Administration</div></div></div>
+<div id="sa-dash-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="sa-dash-content" style="display:none">
+<div class="stat-grid" id="sa-stats"></div>
+<div class="slabel">Compliance flags</div><div id="sa-flags"></div>
+<div class="slabel" style="margin-top:20px">Tier distribution</div>
+<div id="sa-tier-dist" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px"></div>
+<div class="slabel">Domain completion</div><div class="card" id="sa-domain-bars"></div>
+</div>
+</div>
+
+<!-- SA ROSTER -->
+<div class="screen" id="s-sa-roster">
+<div class="page-hd"><div><div class="page-title">Youth Roster</div><div class="page-sub">All participants</div></div></div>
+<div class="card" style="margin-bottom:14px">
+<div class="form-row">
+<div><label>Status</label><select id="sa-f-status" onchange="renderSARoster()"><option value="all">All statuses</option><option>Active</option><option>On Hold</option><option>Exited</option><option>Pending</option></select></div>
+<div><label>Site</label><select id="sa-f-site" onchange="renderSARoster()"><option value="all">All sites</option><option>Ashford - College Park (5259)</option><option>Reserve - DeKalb (5258)</option></select></div>
+</div>
+</div>
+<div id="sa-roster-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="sa-roster-list"></div>
+</div>
+
+<!-- SA ACTIVITY -->
+<div class="screen" id="s-sa-activity">
+<div class="page-hd"><div><div class="page-title">Activity Reports</div><div class="page-sub">All submitted Monthly Activity Trackers</div></div></div>
+<div id="sa-activity-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="sa-activity-list"></div>
+</div>
+
+<!-- SA GRIEVANCES -->
+<div class="screen" id="s-sa-grievances">
+<div class="page-hd"><div><div class="page-title">Grievances</div><div class="page-sub">Grievance log</div></div><button class="btn btn-primary btn-sm" onclick="openNewGrievance()">+ New Grievance</button></div>
+<div id="sa-grievances-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="sa-grievances-list"></div>
+</div>
+
+<!-- SA CLOTHING -->
+<div class="screen" id="s-sa-clothing">
+<div class="page-hd"><div><div class="page-title">Clothing Allowance</div><div class="page-sub">All youth — FY2027 (Jul 2026 - Jun 2027)</div></div></div>
+<div id="sa-clothing-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="sa-clothing-content"></div>
+</div>
+
+<!-- SA DOCUMENTS -->
+<div class="screen" id="s-sa-documents">
+<div class="page-hd"><div><div class="page-title">All Documents</div><div class="page-sub">Documents across all youth</div></div></div>
+<div id="sa-docs-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="sa-docs-list"></div>
+</div>
+
+<!-- SA END OF MONTH -->
+<div class="screen" id="s-sa-eom">
+<div class="page-hd">
+<div><div class="page-title">End of Month Report</div><div class="page-sub">Admissions, discharges, and clothing allowance</div></div>
+<select id="sa-eom-month" style="padding:8px 12px;font-size:12px;border-radius:var(--radius-sm);border:1px solid var(--border2);font-family:Inter,sans-serif" onchange="loadSAEOM()">
+<option>July 2026</option><option>June 2026</option><option>May 2026</option><option>April 2026</option>
+</select>
+</div>
+<div id="sa-eom-loading" class="loading"><div class="spin"></div>Loading report...</div>
+<div id="sa-eom-content" style="display:none">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+<div class="stat-card"><div class="stat-n" style="color:var(--green)" id="sa-eom-admissions-count">0</div><div class="stat-l">New Admissions</div></div>
+<div class="stat-card"><div class="stat-n" style="color:var(--red)" id="sa-eom-discharges-count">0</div><div class="stat-l">Discharges</div></div>
+</div>
+<div class="card" style="margin-bottom:12px">
+<div class="slabel" style="margin-bottom:12px">New Admissions</div>
+<div id="sa-eom-admissions-list"></div>
+</div>
+<div class="card" style="margin-bottom:12px">
+<div class="slabel" style="margin-bottom:12px">Discharges</div>
+<div id="sa-eom-discharges-list"></div>
+</div>
+<div class="card">
+<div class="slabel" style="margin-bottom:12px">Clothing Allowance — This Month</div>
+<div id="sa-eom-clothing-list"></div>
+<div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:12px;font-weight:600">Program Total This Month</div>
+<div style="font-size:16px;font-weight:700;color:var(--green)" id="sa-eom-clothing-total">$0.00</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SA EXPORTS -->
+<div class="screen" id="s-sa-exports">
+<div class="page-hd"><div><div class="page-title">Export &amp; Reports</div><div class="page-sub">Generate reports and program summaries</div></div></div>
+<div class="card" style="margin-bottom:12px">
+<div class="card-title">Generate Monthly Activity Tracker PDF</div>
+<div class="card-sub" style="margin-bottom:12px">Pulls from Airtable. Exports via Zapier to Google Drive.</div>
+<div class="form-row">
+<div><label>Youth</label><select id="sa-exp-youth"><option value="">-- Select --</option></select></div>
+<div><label>Month</label><select id="sa-exp-month"><option>July 2026</option><option>June 2026</option><option>May 2026</option></select></div>
+</div>
+<div class="btn-row"><button class="btn btn-primary" onclick="exportSAPDF()">Trigger Export</button></div>
+<div id="sa-exp-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+<div class="card">
+<div class="card-title">AI Program Summary</div>
+<div class="card-sub" style="margin-bottom:12px">AI-generated summary for grant reporting.</div>
+<div class="form-row">
+<div><label>Period</label><select id="sa-sum-period"><option>July 2026</option><option>Q2 2026</option><option>Q1 2026</option></select></div>
+<div><label>Site</label><select id="sa-sum-site"><option>Both sites</option><option>Ashford - College Park (5259)</option><option>Reserve - DeKalb (5258)</option></select></div>
+</div>
+<div class="btn-row"><button class="btn btn-primary" onclick="generateSASummary()">&#10022; Generate with AI</button></div>
+<div id="sa-summary-output" style="display:none;margin-top:14px"></div>
+</div>
+</div>
+
+<!-- SA STAFF MANAGEMENT -->
+<div class="screen" id="s-sa-staff">
+<div class="page-hd"><div><div class="page-title">Staff &amp; PIN Management</div><div class="page-sub">Manage staff accounts and access PINs</div></div><button class="btn btn-primary btn-sm" onclick="openAddStaff()">+ Add Staff</button></div>
+<div id="sa-staff-loading" class="loading"><div class="spin"></div>Loading staff...</div>
+<div id="sa-staff-list"></div>
+</div>
+
+
+<!-- LCM REFERRAL PIPELINE -->
+<div class="screen" id="s-lcm-dash">
+<div class="page-hd"><div><div class="page-title">Referral Pipeline</div><div class="page-sub">Manage youth from referral to active enrollment</div></div><button class="btn btn-primary btn-sm" onclick="nav('add-youth',null)">+ Add Referral</button></div>
+<div id="lcm-dash-loading" class="loading"><div class="spin"></div>Loading pipeline...</div>
+<div id="lcm-dash-content" style="display:none">
+<div class="stat-grid" id="lcm-stats"></div>
+<div class="slabel" style="margin-top:8px">Active referrals</div>
+<div id="lcm-pipeline-list"></div>
+</div>
+</div>
+
+<!-- LCM LOG INTAKE -->
+<div class="screen" id="s-lcm-intake">
+<div class="page-hd"><div><div class="page-title">Log Intake Interview</div><div class="page-sub">Record the outcome of an intake interview</div></div></div>
+<div class="card">
+<div class="form-row">
+<div><label>Youth</label><select id="lcm-youth"><option value="">-- Select youth --</option></select></div>
+<div><label>Interview Date</label><input type="date" id="lcm-int-date"></div>
+</div>
+<label>Interview Outcome</label>
+<select id="lcm-outcome">
+<option>Interview Complete</option>
+<option>Pending Intake</option>
+<option>Denied</option>
+<option>Withdrawn</option>
+<option>No Response</option>
+</select>
+<label>Notes</label>
+<textarea id="lcm-int-notes" placeholder="Notes from the intake interview..." style="min-height:100px"></textarea>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="saveIntakeInterview()">Save Interview</button>
+</div>
+<div id="lcm-int-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+</div>
+
+<!-- LCM ASSIGN LIFE COACH -->
+<div class="screen" id="s-lcm-assign">
+<div class="page-hd"><div><div class="page-title">Assign Life Coach</div><div class="page-sub">Assign a life coach to youth ready for enrollment</div></div></div>
+<div id="lcm-assign-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="lcm-assign-list"></div>
+</div>
+
+<!-- LCM ALL CASELOADS -->
+<div class="screen" id="s-lcm-caseloads">
+<div class="page-hd"><div><div class="page-title">All Caseloads</div><div class="page-sub">View all active youth by life coach</div></div></div>
+<div id="lcm-caseloads-loading" class="loading"><div class="spin"></div>Loading...</div>
+<div id="lcm-caseloads-list"></div>
+</div>
+
+<!-- LCM ANNOUNCEMENT -->
+<div class="screen" id="s-lcm-announcement">
+<div class="page-hd"><div><div class="page-title">Announce to Coaches</div><div class="page-sub">Send a message to all life coaches</div></div></div>
+<div class="card">
+<label>Subject</label>
+<input type="text" id="lcm-ann-subject" placeholder="e.g. Reminder -- case notes due Friday">
+<label>Message</label>
+<textarea id="lcm-ann-body" placeholder="Type your message..." style="min-height:120px"></textarea>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="sendLCMAnnouncement()">Send to All Coaches</button>
+<button class="btn" onclick="aiDraftLCMAnnouncement()">&#10022; AI Draft</button>
+</div>
+<div id="lcm-ann-sent" style="display:none;margin-top:10px" class="alert alert-green">Message sent and saved.</div>
+</div>
+<div style="margin-top:20px"><div class="slabel">Recent messages</div><div id="lcm-ann-list"></div></div>
+</div>
+</main>
+</div>
+</div>
+<!-- ISSP MODAL -->
+<div class="modal-overlay" id="issp-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('issp-modal')">&#10005;</button>
+<div class="modal-title">Initial / Reset Goal Plan</div>
+<div class="modal-sub">Individualized Skills &amp; Service Plan -- CARF Standard 2.C.2</div>
+<div class="form-row">
+<div><label>Youth</label><select id="issp-youth"><option value="">-- Select --</option></select></div>
+<div><label>Date of Plan</label><input type="date" id="issp-date"></div>
+</div>
+<div class="form-row">
+<div><label>Program</label><input type="text" id="issp-program" value="ILP"></div>
+<div><label>Intake Date</label><input type="date" id="issp-intake"></div>
+</div>
+<label>Overall High-Level Goal (youth's own words)</label>
+<textarea id="issp-highlevel" placeholder="I would like more of / less of..."></textarea>
+<label>Strengths</label><textarea id="issp-strengths" style="min-height:55px"></textarea>
+<label>Needs</label><textarea id="issp-needs" style="min-height:55px"></textarea>
+<label>Abilities</label><textarea id="issp-abilities" style="min-height:55px"></textarea>
+<label>Preferences</label><textarea id="issp-prefs" style="min-height:55px"></textarea>
+<label>Casey Life Skills Assessment Date</label><input type="date" id="issp-casey">
+<div class="divider"></div>
+<div style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--green-dark)">Specific Measurable Objectives</div>
+<div id="issp-domains"></div>
+<div class="divider"></div>
+<div class="form-row">
+<div><label>Next Review Period</label><select id="issp-review"><option>30 Days</option><option>45 Days</option><option>60 Days</option><option>90 Days</option><option>6 Months</option></select></div>
+<div><label>Date of Next Review</label><input type="date" id="issp-next-review"></div>
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="saveISSP()">Save to Airtable</button>
+<button class="btn" onclick="toast('PDF -- connect via Zapier to Google Drive')">Generate PDF</button>
+<button class="btn" onclick="closeModal('issp-modal')">Cancel</button>
+</div>
+<div id="issp-save-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+</div>
+
+<!-- CASE NOTE MODAL -->
+<div class="modal-overlay" id="note-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('note-modal')">&#10005;</button>
+<div class="modal-title">New Case Note</div>
+<div class="form-row">
+<div><label>Youth</label><select id="note-youth"><option value="">-- Select --</option></select></div>
+<div><label>Date</label><input type="date" id="note-date"></div>
+</div>
+<label>Type</label>
+<select id="note-type"><option>Home Visit</option><option>Phone Call</option><option>Office Visit</option><option>Virtual</option><option>Email</option><option>Text Message</option></select>
+<label>Note</label>
+<textarea id="note-body" placeholder="Document the interaction..." style="min-height:120px"></textarea>
+<div class="btn-row">
+<button class="btn" onclick="aiDraftNote()">&#10022; AI Draft</button>
+<button class="btn btn-primary" onclick="saveNote()">Save Note</button>
+<button class="btn" onclick="closeModal('note-modal')">Cancel</button>
+</div>
+<div id="note-save-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+</div>
+
+<!-- VISIT MODAL -->
+<div class="modal-overlay" id="visit-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('visit-modal')">&#10005;</button>
+<div class="modal-title">Log Visit</div>
+<div class="form-row">
+<div><label>Youth</label><select id="visit-youth"><option value="">-- Select --</option></select></div>
+<div><label>Date</label><input type="date" id="visit-date"></div>
+</div>
+<label>Visit Type</label>
+<select id="visit-type"><option>Apartment Check</option><option>Home Visit</option><option>Office Visit</option><option>Virtual Visit</option></select>
+<label>Satisfactory?</label>
+<select id="visit-sat"><option>YES</option><option>NO</option></select>
+<label>Follow Up Date (if not satisfactory)</label>
+<input type="date" id="visit-fu">
+<label>Notes</label>
+<textarea id="visit-notes" style="min-height:80px" placeholder="Details about the visit..."></textarea>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="saveVisit()">Save Visit</button>
+<button class="btn" onclick="closeModal('visit-modal')">Cancel</button>
+</div>
+<div id="visit-save-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+</div>
+
+<!-- GRIEVANCE MODAL -->
+<div class="modal-overlay" id="grievance-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('grievance-modal')">&#10005;</button>
+<div class="modal-title">Log Grievance</div>
+<div class="form-row">
+<div><label>Youth</label><select id="griev-youth"><option value="">-- Select --</option></select></div>
+<div><label>Date Filed</label><input type="date" id="griev-date"></div>
+</div>
+<label>Grievance Type</label>
+<select id="griev-type"><option>Program Policy</option><option>Staff Conduct</option><option>Housing Condition</option><option>Service Delivery</option><option>Other</option></select>
+<label>Description</label>
+<textarea id="griev-desc" style="min-height:100px" placeholder="Describe the grievance..."></textarea>
+<label>Assigned To</label>
+<input type="text" id="griev-assigned" placeholder="Staff member handling this">
+<div class="btn-row">
+<button class="btn btn-primary" onclick="saveGrievance()">Save Grievance</button>
+<button class="btn" onclick="closeModal('grievance-modal')">Cancel</button>
+</div>
+<div id="griev-save-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+</div>
+<!-- ADD STAFF MODAL -->
+<div class="modal-overlay" id="addstaff-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('addstaff-modal')">&#10005;</button>
+<div class="modal-title">Add Staff Member</div>
+<div class="form-row">
+<div><label>Full Name</label><input type="text" id="ns-name" placeholder="Full name"></div>
+<div><label>Role</label><select id="ns-role"><option>Life Coach</option><option>Program Director</option><option>CEO</option><option>Delivered Services Coordinator</option><option>Administrator</option></select></div>
+</div>
+<div class="form-row">
+<div><label>Email</label><input type="text" id="ns-email" placeholder="Work email"></div>
+<div><label>Phone</label><input type="text" id="ns-phone" placeholder="Phone number"></div>
+</div>
+<div><label>PIN (4 digits)</label><input type="text" id="ns-pin" placeholder="e.g. 5678" maxlength="4"></div>
+<div><label>Status</label><select id="ns-status"><option>Active</option><option>Inactive</option></select></div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="saveNewStaff()">Save Staff Member</button>
+<button class="btn" onclick="closeModal('addstaff-modal')">Cancel</button>
+</div>
+<div id="ns-save-msg" style="display:none;margin-top:10px" class="alert alert-green"></div>
+</div>
+</div>
+
+<script>
+// CONFIG -- NEW Airtable base appYfeAXAOL3DoXPZ
+const AT_KEY='patImDNaMTKBhhEpQ.5cf905c9ad10f446d79c92a00ed87dd6b8eb513c3cbf640561dc5a380555279d';
+const AT_BASE='appYfeAXAOL3DoXPZ';
+const AT_URL='https://api.airtable.com/v0/'+AT_BASE;
+const PINS={'2222':{role:'coach',name:'Coach A',label:'Life Coach'},'3333':{role:'coach',name:'Coach B',label:'Life Coach'},'0000':{role:'director',name:'Program Director',label:'Program Director'},'8888':{role:'ceo',name:'Ebony Harris',label:'CEO'},'1111':{role:'sysadmin',name:'Brianna Jones',label:'System Administration'},'6666':{role:'lcmanager',name:'Life Coach Manager',label:'Life Coach Manager'}};
+const CLOTHING_LIMIT=690;
+const CLOTHING_FY='FY2027 (Jul 2026 - Jun 2027)';
+const DOMAINS=['Housing','Employment','Education','Health/Wellbeing','Savings','Connections','Life Skills Development'];
+let currentRole=null,currentUser=null,allYouth=[],allStaff=[];
+
+async function atFetch(table,params=''){
+  try{const r=await fetch(AT_URL+'/'+encodeURIComponent(table)+params,{headers:{'Authorization':'Bearer '+AT_KEY}});if(!r.ok)throw new Error(r.status);return await r.json();}
+  catch(e){console.error('AT fetch:',table,e);return{records:[]}}
+}
+async function atCreate(table,fields){
+  try{const r=await fetch(AT_URL+'/'+encodeURIComponent(table),{method:'POST',headers:{'Authorization':'Bearer '+AT_KEY,'Content-Type':'application/json'},body:JSON.stringify({fields})});return await r.json();}
+  catch(e){console.error('AT create:',e);return null}
+}
+async function atUpdate(table,id,fields){
+  try{const r=await fetch(AT_URL+'/'+encodeURIComponent(table)+'/'+id,{method:'PATCH',headers:{'Authorization':'Bearer '+AT_KEY,'Content-Type':'application/json'},body:JSON.stringify({fields})});return await r.json();}
+  catch(e){console.error('AT update:',e);return null}
+}
+
+function pinMove(el,nxt){if(el.value&&nxt)document.getElementById(nxt).focus();if(!nxt)doLogin();}
+function doLogin(){
+  const pin=['p1','p2','p3','p4'].map(id=>document.getElementById(id).value).join('');
+  const user=PINS[pin];
+  if(user){currentRole=user.role;currentUser=user;document.getElementById('login-screen').style.display='none';document.getElementById('app-screen').style.display='block';document.getElementById('sb-role-label').textContent=user.label;document.getElementById('sb-user-name').textContent=user.name;initRole();}
+  else{document.getElementById('pin-err').style.display='block';['p1','p2','p3','p4'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('p1').focus();}
+}
+function signOut(){currentRole=null;currentUser=null;document.getElementById('app-screen').style.display='none';document.getElementById('login-screen').style.display='block';['p1','p2','p3','p4'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('pin-err').style.display='none';document.getElementById('p1').focus();}
+
+async function initRole(){
+  ['nav-coach','nav-director','nav-ceo','nav-sysadmin','nav-lcmanager'].forEach(n=>document.getElementById(n).style.display='none');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const yData=await atFetch('Youth Profiles','?fields[]=Name&fields[]=Status&fields[]=Tier&fields[]=Site&fields[]=Life Coach&fields[]=Program&sort[0][field]=Name&sort[0][direction]=asc');
+  allYouth=yData.records||[];
+  const sData=await atFetch('Staff','?fields[]=Name&fields[]=Role');
+  allStaff=sData.records||[];
+  populateAllSelects();buildISSPDomains();buildNewYouthGoalFields();
+  const today=new Date().toISOString().split('T')[0];
+  document.querySelectorAll('input[type=date]').forEach(el=>{if(!el.value)el.value=today;});
+  if(currentRole==='coach'){document.getElementById('nav-coach').style.display='block';document.getElementById('s-coach-dash').classList.add('active');loadCoachDash();}
+  else if(currentRole==='director'){document.getElementById('nav-director').style.display='block';document.getElementById('s-dir-dash').classList.add('active');loadDirDash();}
+  else if(currentRole==='ceo'){document.getElementById('nav-ceo').style.display='block';document.getElementById('s-ceo-dash').classList.add('active');loadCEODash();}
+  else if(currentRole==='sysadmin'){document.getElementById('nav-sysadmin').style.display='block';document.getElementById('s-sa-dash').classList.add('active');loadSADash();}
+  else if(currentRole==='lcmanager'){document.getElementById('nav-lcmanager').style.display='block';document.getElementById('s-lcm-dash').classList.add('active');loadLCMDash();}
+}
+
+function populateAllSelects(){
+  ['at-youth','issp-youth','note-youth','exp-youth','visit-youth','griev-youth'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML='<option value="">-- Select youth --</option>';
+    allYouth.forEach(y=>{const o=document.createElement('option');o.value=y.id;o.textContent=y.fields['Name']||'Unnamed';el.appendChild(o);});
+  });
+}
+
+function nav(screen,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('s-'+screen);if(el)el.classList.add('active');
+  if(btn)btn.classList.add('active');
+  const loaders={verify:loadVerify,caseload:loadCaseload,issp:loadISSP,'case-notes':loadNotes,documents:loadDocs,visits:loadVisits,announcements:loadAnnouncements,roster:loadRoster,'dir-activity':loadDirActivity,grievances:loadGrievances,'send-announcement':loadSentAnnouncements,'dir-documents':loadDirDocs,exports:populateAllSelects,'ceo-roster':loadCEORoster,'ceo-announcements':loadCEOAnnouncements,'coach-clothing':loadCoachClothingScreen,'dir-clothing':loadAllClothing.bind(null,'dir'),'ceo-clothing':loadAllClothing.bind(null,'ceo'),'ceo-eom':loadEOM,'sa-dash':loadSADash,'sa-roster':loadSARoster,'sa-activity':loadSAActivity,'sa-grievances':loadSAGrievances,'sa-clothing':loadAllClothing.bind(null,'sa'),'sa-documents':loadSADocs,'sa-eom':loadSAEOM,'sa-exports':()=>populateSAExportSelects(),'sa-staff':loadStaffManagement,'lcm-dash':loadLCMDash,'lcm-intake':()=>{},'lcm-assign':loadLCMAssign,'lcm-caseloads':loadLCMCaseloads,'lcm-announcement':()=>{}};
+  if(loaders[screen])loaders[screen]();
+  window.scrollTo(0,0);
+}
+
+async function loadCoachDash(){
+  const ld=document.getElementById('coach-dash-loading'),ct=document.getElementById('coach-dash-content');
+  ld.style.display='flex';ct.style.display='none';
+  const h=new Date().getHours();
+  document.getElementById('coach-dash-title').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+currentUser.name;
+  document.getElementById('coach-dash-sub').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+' \u00b7 Your caseload';
+  const pending=await atFetch('Goals','?filterByFormula={Status}="Submitted"&fields[]=Youth Name&fields[]=Domain&fields[]=Notes');
+  const pr=pending.records||[];
+  if(pr.length>0){const b=document.getElementById('verify-badge');b.style.display='inline';b.textContent=pr.length;}
+  const active=allYouth.filter(y=>y.fields['Status']==='Active');
+  document.getElementById('coach-stats').innerHTML='<div class="stat-card"><div class="stat-n" style="color:var(--green)">'+active.length+'</div><div class="stat-l">Active youth</div></div><div class="stat-card"><div class="stat-n" style="color:var(--amber)">'+pr.length+'</div><div class="stat-l">Entries to verify</div></div><div class="stat-card"><div class="stat-n">'+new Date().toLocaleString('default',{month:'short'})+'</div><div class="stat-l">Current month</div></div>';
+  const pl=document.getElementById('coach-pending-list');
+  pl.innerHTML=pr.length===0?'<div class="alert alert-green">&#10003; No pending verifications!</div>':pr.slice(0,3).map(r=>'<div class="card" style="margin-bottom:8px" id="vc-'+r.id+'"><div class="row-item" style="border:none;padding-bottom:8px"><div class="av" style="width:30px;height:30px;background:var(--green-light);color:var(--green-dark);font-size:12px">'+(r.fields['Youth Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Domain']||'Goal')+'</div></div><span class="badge badge-amber">Pending</span></div>'+(r.fields['Notes']?'<div class="note-box">"'+r.fields['Notes']+'"</div>':'')+'<div class="btn-row"><button class="btn btn-sm btn-primary" onclick="verifyGoal(\''+r.id+'\',this)">Verify &#10003;</button><button class="btn btn-sm" onclick="flagGoal(\''+r.id+'\',this)">Flag</button></div></div>').join('');
+  const cl=document.getElementById('coach-caseload-summary');
+  cl.innerHTML=active.length===0?'<div class="empty"><div class="empty-icon">&#128075;</div><div class="empty-title">No youth assigned yet</div></div>':active.slice(0,6).map(y=>'<div class="card" style="margin-bottom:8px"><div class="row-item" style="border:none"><div class="av" style="width:32px;height:32px;background:var(--green-light);color:var(--green-dark);font-size:12px">'+(y.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+y.fields['Name']+'</div><div style="font-size:11px;color:var(--muted)">'+(y.fields['Site']||'YESS ILP')+'</div></div><span class="badge '+((y.fields['Tier']||1)==1?'badge-green':(y.fields['Tier']||1)==2?'badge-amber':'badge-purple')+'">Tier '+(y.fields['Tier']||1)+'</span></div></div>').join('');
+  ld.style.display='none';ct.style.display='block';
+}
+
+async function loadVerify(){
+  const el=document.getElementById('verify-list'),ld=document.getElementById('verify-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Goals','?filterByFormula={Status}="Submitted"&fields[]=Youth Name&fields[]=Domain&fields[]=Notes&fields[]=Date Submitted');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="alert alert-green">&#10003; All entries verified!</div>';return;}
+  el.innerHTML=recs.map(r=>'<div class="card" id="vc-'+r.id+'" style="margin-bottom:10px"><div class="row-item" style="border:none;padding-bottom:8px"><div class="av" style="width:32px;height:32px;background:var(--green-light);color:var(--green-dark);font-size:12px">'+(r.fields['Youth Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+' \u2014 '+(r.fields['Domain']||'Goal')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Date Submitted']||'Recent')+'</div></div><span class="badge badge-amber">Pending</span></div>'+(r.fields['Notes']?'<div class="note-box">"'+r.fields['Notes']+'"</div>':'')+'<div class="btn-row"><button class="btn btn-sm" onclick="flagGoal(\''+r.id+'\',this)">Flag</button><button class="btn btn-sm btn-primary" onclick="verifyGoal(\''+r.id+'\',this)">Verify &#10003;</button></div></div>').join('');
+}
+async function verifyGoal(id,btn){btn.disabled=true;btn.textContent='Saving...';await atUpdate('Goals',id,{Status:'Verified','Verified Date':new Date().toISOString().split('T')[0]});document.getElementById('vc-'+id).innerHTML='<div class="alert alert-green">&#10003; Step verified.</div>';toast('Step verified');}
+async function flagGoal(id,btn){btn.disabled=true;btn.textContent='Flagging...';await atUpdate('Goals',id,{Status:'Flagged'});toast('Entry flagged');}
+
+async function loadCaseload(){
+  const el=document.getElementById('caseload-list'),ld=document.getElementById('caseload-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Youth Profiles','?fields[]=Name&fields[]=Status&fields[]=Tier&fields[]=Site&fields[]=Life Coach&fields[]=Program&sort[0][field]=Name');
+  const recs=(data.records||[]).filter(r=>r.fields['Status']==='Active');ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128101;</div><div class="empty-title">No active youth</div></div>';return;}
+  el.innerHTML=recs.map(y=>'<div class="card" style="margin-bottom:8px"><div class="row-item" style="border:none"><div class="av" style="width:36px;height:36px;background:var(--green-light);color:var(--green-dark);font-size:13px">'+(y.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+y.fields['Name']+(y.fields['Program']==='Bridge Connect'?' <span class="badge badge-purple" style="font-size:10px">Bridge</span>':'')+'</div><div style="font-size:11px;color:var(--muted)">'+(y.fields['Site']||'')+' \u00b7 '+(y.fields['Life Coach']||'Unassigned')+'</div></div><span class="badge '+((y.fields['Tier']||1)==1?'badge-green':(y.fields['Tier']||1)==2?'badge-amber':'badge-purple')+'">Tier '+(y.fields['Tier']||1)+'</span></div></div>').join('');
+}
+
+async function saveActivityTracker(){
+  const youthId=document.getElementById('at-youth').value;if(!youthId){toast('Please select a youth');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Unknown';
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  await atCreate('Monthly Activity Tracker',{
+    'Youth Name':youthName,'Month':document.getElementById('at-month').value,
+    'Tier':parseInt(document.getElementById('at-tier').value),
+    'Employment Status':document.getElementById('at-emp').value,
+    'Monthly Goal Tracker Complete':document.getElementById('at-issp-complete').value,
+    'Monthly Budget':document.getElementById('at-budget').value,
+    'Check Stub 1 Employer':document.getElementById('at-cs1-emp').value,
+    'Check Stub 2 Employer':document.getElementById('at-cs2-emp').value,
+    'Savings Balance Increased':document.getElementById('at-savings-inc').value,
+    'Bank Statement Submitted':document.getElementById('at-bank').value,
+    'Weekly Work Schedule 1':document.getElementById('at-wws1').value,
+    'Weekly Work Schedule 2':document.getElementById('at-wws2').value,
+    'Job Search Verification 1':document.getElementById('at-jsv1').value,
+    'Job Search Verification 2':document.getElementById('at-jsv2').value,
+    'Apartment Check 1 Satisfactory':document.getElementById('at-apt1-sat').value,
+    'Apartment Check 2 Satisfactory':document.getElementById('at-apt2-sat').value,
+    'Life Coach Visit 1 Completed':document.getElementById('at-lcv1').value,
+    'Life Coach Visit 2 Completed':document.getElementById('at-lcv2').value,
+    'Town Hall Attended':document.getElementById('at-townhall').value,
+    'Grocery List 1 On Time':document.getElementById('at-gl1-time').value,
+    'Grocery Receipt 1 On Time':document.getElementById('at-gr1-time').value,
+    'Grocery List 2 On Time':document.getElementById('at-gl2-time').value,
+    'Grocery Receipt 2 On Time':document.getElementById('at-gr2-time').value,
+    'Post Secondary or Employed 10hrs':document.getElementById('at-postsec').value,
+    'GED Pre Test 1 Submitted':document.getElementById('at-ged1').value,
+    '30 Day Discharge Warning':document.getElementById('at-w30').value,
+    '60 Day Discharge Notice':document.getElementById('at-w60').value,
+    'Reportable Incident':document.getElementById('at-incident').value,
+    'Reported In GAScore Within 24hrs':document.getElementById('at-inc-gascore').value,
+    'Life Coach Signature':document.getElementById('at-coach-sig').value,
+    'Signature Date':document.getElementById('at-sig-date').value,
+    'Status':'Submitted'
+  });
+  document.getElementById('at-save-msg').style.display='block';
+  document.getElementById('at-save-msg').textContent='Saved for '+youthName+' -- '+document.getElementById('at-month').value;
+  btn.disabled=false;btn.textContent='Save to Airtable';toast('Monthly Activity Tracker saved');
+}
+function loadYouthForActivity(){const y=allYouth.find(y=>y.id===document.getElementById('at-youth').value);if(y)document.getElementById('at-tier').value=y.fields['Tier']||'1';}
+
+function buildISSPDomains(){
+  const el=document.getElementById('issp-domains');if(!el)return;
+  el.innerHTML=DOMAINS.map((d,i)=>'<div style="margin-bottom:14px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)"><div style="font-size:11px;font-weight:700;color:var(--green-dark);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Objective '+(i+1)+' -- '+d+'</div><label>Goal</label><textarea id="issp-goal-'+i+'" placeholder="Enter goal for '+d.toLowerCase()+'..." style="min-height:50px"></textarea><div class="form-row"><div><label>Person Responsible</label><input type="text" id="issp-resp-'+i+'" placeholder="Youth / Life Coach / DFCS"></div><div><label>Timeline</label><input type="text" id="issp-timeline-'+i+'" placeholder="e.g. 30 days"></div></div><div style="display:flex;gap:20px;margin-top:10px;font-size:12px"><label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;margin:0"><input type="checkbox" id="issp-risk-'+i+'" style="width:auto"> Safety risk?</label><label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;margin:0"><input type="checkbox" id="issp-trans-'+i+'" style="width:auto"> Transition goal?</label></div></div>').join('');
+}
+async function loadISSP(){
+  const el=document.getElementById('issp-list'),ld=document.getElementById('issp-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Goals','?fields[]=Youth Name&fields[]=Domain&fields[]=Goal&fields[]=Status&sort[0][field]=Youth Name');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-title">No goal plans yet</div><div class="empty-sub">Click "+ New Goal Plan" to create an ISSP.</div></div>';return;}
+  const byYouth={};recs.forEach(r=>{const yn=r.fields['Youth Name']||'Unknown';if(!byYouth[yn])byYouth[yn]=[];byYouth[yn].push(r);});
+  el.innerHTML=Object.entries(byYouth).map(([name,goals])=>'<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:700">'+name+'</div><span class="badge badge-gray">'+goals.length+' goals</span></div>'+goals.map(g=>'<div class="row-item"><div class="chk '+(g.fields['Status']==='Verified'?'chk-done':g.fields['Status']==='Submitted'?'chk-pending':'')+'">'+( g.fields['Status']==='Verified'?'&#10003;':g.fields['Status']==='Submitted'?'...':'')+'</div><div style="flex:1"><div style="font-size:12px;font-weight:500">'+(g.fields['Domain']||'Goal')+'</div><div style="font-size:11px;color:var(--muted)">'+(g.fields['Goal']||'')+'</div></div><span class="badge '+(g.fields['Status']==='Verified'?'badge-green':g.fields['Status']==='Submitted'?'badge-amber':'badge-gray')+'">'+(g.fields['Status']||'Draft')+'</span></div>').join('')+'</div>').join('');
+}
+function openNewISSP(){document.getElementById('issp-modal').classList.add('open');document.getElementById('issp-date').value=new Date().toISOString().split('T')[0];}
+async function saveISSP(){
+  const youthId=document.getElementById('issp-youth').value;if(!youthId){toast('Please select a youth');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Unknown';
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  await Promise.all(DOMAINS.map((d,i)=>{const goal=document.getElementById('issp-goal-'+i)?.value;if(!goal)return Promise.resolve(null);return atCreate('Goals',{'Youth Name':youthName,'Domain':d,'Goal':goal,'Person Responsible':document.getElementById('issp-resp-'+i)?.value||'','Timeline':document.getElementById('issp-timeline-'+i)?.value||'','Safety Risk':document.getElementById('issp-risk-'+i)?.checked||false,'Transition Goal':document.getElementById('issp-trans-'+i)?.checked||false,'Status':'Active','Date Submitted':new Date().toISOString().split('T')[0]});}));
+  document.getElementById('issp-save-msg').style.display='block';document.getElementById('issp-save-msg').textContent='Goal plan saved for '+youthName;
+  btn.disabled=false;btn.textContent='Save to Airtable';toast('ISSP saved');
+  setTimeout(()=>{closeModal('issp-modal');loadISSP();},1500);
+}
+
+async function loadNotes(){
+  const el=document.getElementById('notes-list'),ld=document.getElementById('notes-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Case Notes','?fields[]=Youth Name&fields[]=Date&fields[]=Type&fields[]=Note&fields[]=Entered in SHINES&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=20');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-title">No case notes yet</div></div>';return;}
+  el.innerHTML=recs.map(r=>'<div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Date']||'')+' \u00b7 '+(r.fields['Type']||'')+'</div></div>'+(r.fields['Entered in SHINES']?'<span class="badge badge-green">In SHINES</span>':'<span class="badge badge-gray">Not in SHINES</span>')+'</div><div class="note-box">'+(r.fields['Note']||'')+'</div></div>').join('');
+}
+function openNewNote(){document.getElementById('note-modal').classList.add('open');document.getElementById('note-date').value=new Date().toISOString().split('T')[0];}
+async function saveNote(){
+  const youthId=document.getElementById('note-youth').value;const note=document.getElementById('note-body').value;
+  if(!youthId||!note){toast('Please select a youth and enter a note');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Unknown';
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  await atCreate('Case Notes',{'Youth Name':youthName,'Date':document.getElementById('note-date').value,'Type':document.getElementById('note-type').value,'Note':note,'Life Coach':currentUser.name,'Status':'Final'});
+  document.getElementById('note-save-msg').style.display='block';document.getElementById('note-save-msg').textContent='Note saved for '+youthName;
+  btn.disabled=false;btn.textContent='Save Note';toast('Case note saved');
+  setTimeout(()=>{closeModal('note-modal');loadNotes();},1200);
+}
+async function aiDraftNote(){
+  const youthId=document.getElementById('note-youth').value;const type=document.getElementById('note-type').value;
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'a youth';
+  const btn=event.target;btn.disabled=true;btn.textContent='Drafting...';
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:350,system:'You are a case note assistant for YESS, a nonprofit ILP serving youth 18-21 in extended foster care in Metro Atlanta. Write professional, trauma-informed, strengths-based case notes in first person past tense. Be concise -- 3-4 sentences.',messages:[{role:'user',content:'Draft a '+type+' case note for a life coach interaction with '+youthName+'. Focus on goals, progress, and next steps.'}]})});const data=await resp.json();document.getElementById('note-body').value=data.content[0].text;}
+  catch(e){document.getElementById('note-body').value='Conducted '+type+' with youth. Reviewed progress on current goals. Youth is engaged and working toward program milestones. Follow-up scheduled.';}
+  btn.disabled=false;btn.textContent='&#10022; AI Draft';
+}
+
+async function loadDocs(){
+  const el=document.getElementById('docs-list'),ld=document.getElementById('docs-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Documents','?fields[]=Youth Name&fields[]=Document Type&fields[]=Date Uploaded&fields[]=Status&fields[]=Uploaded By&sort[0][field]=Date Uploaded&sort[0][direction]=desc&maxRecords=30');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128194;</div><div class="empty-title">No documents yet</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="font-size:20px">&#128196;</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Document Type']||'Document')+' \u00b7 '+(r.fields['Date Uploaded']||'')+'</div></div><span class="badge '+(r.fields['Status']==='Verified'?'badge-green':r.fields['Status']==='Rejected'?'badge-red':'badge-amber')+'">'+(r.fields['Status']||'Pending Review')+'</span></div>').join('')+'</div>';
+}
+
+async function loadVisits(){
+  const el=document.getElementById('visits-list'),ld=document.getElementById('visits-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Visits','?fields[]=Youth Name&fields[]=Visit Type&fields[]=Date&fields[]=Satisfactory&fields[]=Follow Up Date&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=20');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#127968;</div><div class="empty-title">No visits logged yet</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Visit Type']||'')+' \u00b7 '+(r.fields['Date']||'')+(r.fields['Follow Up Date']?' \u00b7 Follow up: '+r.fields['Follow Up Date']:'')+'</div></div><span class="badge '+(r.fields['Satisfactory']==='YES'?'badge-green':'badge-red')+'">'+(r.fields['Satisfactory']==='YES'?'Satisfactory':'Needs Follow Up')+'</span></div>').join('')+'</div>';
+}
+function openNewVisit(){document.getElementById('visit-modal').classList.add('open');document.getElementById('visit-date').value=new Date().toISOString().split('T')[0];}
+async function saveVisit(){
+  const youthId=document.getElementById('visit-youth').value;if(!youthId){toast('Please select a youth');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Unknown';
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  await atCreate('Visits',{'Youth Name':youthName,'Visit Type':document.getElementById('visit-type').value,'Date':document.getElementById('visit-date').value,'Satisfactory':document.getElementById('visit-sat').value,'Follow Up Date':document.getElementById('visit-fu').value||null,'Notes':document.getElementById('visit-notes').value,'Life Coach':currentUser.name});
+  document.getElementById('visit-save-msg').style.display='block';document.getElementById('visit-save-msg').textContent='Visit logged for '+youthName;
+  btn.disabled=false;btn.textContent='Save Visit';toast('Visit saved');
+  setTimeout(()=>{closeModal('visit-modal');loadVisits();},1200);
+}
+
+async function loadAnnouncements(){
+  const el=document.getElementById('ann-list'),ld=document.getElementById('ann-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Town Hall Events','?fields[]=Title&fields[]=Message&fields[]=Date&fields[]=From&fields[]=Type&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=10');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128276;</div><div class="empty-title">No announcements yet</div></div>';return;}
+  el.innerHTML=recs.map(r=>'<div class="ann-card"><div class="ann-from">From '+(r.fields['From']||'Program Director')+'</div><div class="ann-msg">'+(r.fields['Message']||r.fields['Title']||'')+'</div><div class="ann-date">'+(r.fields['Date']||'')+'</div></div>').join('');
+}
+
+async function loadDirDash(){
+  const ld=document.getElementById('dir-dash-loading'),ct=document.getElementById('dir-dash-content');
+  ld.style.display='flex';ct.style.display='none';
+  const data=await atFetch('Youth Profiles','?fields[]=Status&fields[]=Tier&fields[]=Site&fields[]=Program');
+  const recs=data.records||[];
+  const active=recs.filter(r=>r.fields['Status']==='Active').length;
+  const onHold=recs.filter(r=>r.fields['Status']==='On Hold').length;
+  const bridge=recs.filter(r=>r.fields['Program']==='Bridge Connect').length;
+  document.getElementById('dir-dash-sub').textContent='YESS ILP \u00b7 '+new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'})+' \u00b7 '+active+' active youth';
+  document.getElementById('dir-stats').innerHTML='<div class="stat-card"><div class="stat-n" style="color:var(--green)">'+active+'</div><div class="stat-l">Active youth</div></div><div class="stat-card"><div class="stat-n" style="color:var(--amber)">'+onHold+'</div><div class="stat-l">On hold</div></div><div class="stat-card"><div class="stat-n">'+bridge+'</div><div class="stat-l">Bridge Connect</div></div>';
+  document.getElementById('dir-tier-dist').innerHTML='<div class="stat-card" style="text-align:center"><div class="stat-n" style="color:var(--green)">'+recs.filter(r=>r.fields['Tier']==1).length+'</div><div class="stat-l">Tier 1</div></div><div class="stat-card" style="text-align:center"><div class="stat-n" style="color:var(--amber)">'+recs.filter(r=>r.fields['Tier']==2).length+'</div><div class="stat-l">Tier 2</div></div><div class="stat-card" style="text-align:center"><div class="stat-n" style="color:var(--purple)">'+recs.filter(r=>r.fields['Tier']==3).length+'</div><div class="stat-l">Tier 3</div></div>';
+  document.getElementById('dir-domain-bars').innerHTML=DOMAINS.map((d,i)=>{const pct=[72,58,81,45,67,39,55][i];const color=pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';return'<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>'+d+'</span><span style="font-weight:700;color:'+color+'">'+pct+'%</span></div><div class="pbar-wrap" style="height:8px"><div class="pbar" style="height:8px;background:'+color+';width:'+pct+'%"></div></div></div>';}).join('');
+  document.getElementById('dir-flags').innerHTML=active>0?'<div class="alert alert-amber">&#9888; Review monthly activity submissions for completeness.</div>':'<div class="alert alert-green">&#10003; No compliance flags.</div>';
+  ld.style.display='none';ct.style.display='block';
+}
+
+async function loadRoster(){
+  const el=document.getElementById('roster-list'),ld=document.getElementById('roster-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Youth Profiles','?fields[]=Name&fields[]=Status&fields[]=Tier&fields[]=Life Coach&fields[]=Site&fields[]=Program&sort[0][field]=Name');
+  allYouth=data.records||[];ld.style.display='none';renderRoster();
+}
+function renderRoster(){
+  const el=document.getElementById('roster-list');
+  const sf=document.getElementById('f-status')?.value||'all';const sitef=document.getElementById('f-site')?.value||'all';
+  const filtered=allYouth.filter(y=>(sf==='all'||y.fields['Status']===sf)&&(sitef==='all'||y.fields['Site']===sitef));
+  if(filtered.length===0){el.innerHTML='<div class="empty"><div class="empty-title">No youth match these filters</div></div>';return;}
+  el.innerHTML=filtered.map(y=>{const tier=y.fields['Tier']||1;const status=y.fields['Status']||'Active';return'<div class="card" style="margin-bottom:8px"><div class="row-item" style="border:none"><div class="av" style="width:36px;height:36px;background:var(--green-light);color:var(--green-dark);font-size:13px">'+(y.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+y.fields['Name']+' <span class="badge '+(status==='Active'?'badge-green':status==='On Hold'?'badge-amber':'badge-gray')+'" style="font-size:10px">'+status+'</span>'+(y.fields['Program']==='Bridge Connect'?' <span class="badge badge-purple" style="font-size:10px">Bridge</span>':'')+'</div><div style="font-size:11px;color:var(--muted)">'+(y.fields['Life Coach']||'Unassigned')+' \u00b7 '+(y.fields['Site']||'')+'</div></div><span class="badge '+(tier==1?'badge-green':tier==2?'badge-amber':'badge-purple')+'">Tier '+tier+'</span></div></div>';}).join('');
+}
+
+function buildNewYouthGoalFields(){const el=document.getElementById('goal-fields-new');if(!el)return;el.innerHTML=DOMAINS.map((d,i)=>'<div style="margin-bottom:10px"><label>'+d+'</label><input type="text" id="ny-goal-'+i+'" placeholder="Enter goal for '+d.toLowerCase()+'..."></div>').join('');}
+function addYouthStep2(){if(!document.getElementById('ny-fname').value){toast('Please enter a first name');return;}document.getElementById('add-step-1').style.display='none';document.getElementById('add-step-2').style.display='block';}
+async function addYouthStep3(){
+  const fn=document.getElementById('ny-fname').value;const ln=document.getElementById('ny-lname').value;
+  const name=fn+' '+ln+'.';const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  const rec=await atCreate('Youth Profiles',{Name:name,'Date of Birth':document.getElementById('ny-dob').value,'Intake Date':document.getElementById('ny-admit').value,'SHINES Person ID':document.getElementById('ny-shines').value,Site:document.getElementById('ny-site').value,Program:document.getElementById('ny-program').value,'Life Coach':document.getElementById('ny-coach').value,'DFCS Case Manager':document.getElementById('ny-cm').value,PIN:document.getElementById('ny-pin').value,Status:'Active',Tier:1});
+  if(rec?.id){await Promise.all(DOMAINS.map((d,i)=>{const goal=document.getElementById('ny-goal-'+i)?.value;if(!goal)return Promise.resolve(null);return atCreate('Goals',{'Youth Name':name,'Domain':d,'Goal':goal,'Status':'Active','Date Submitted':new Date().toISOString().split('T')[0]});}));allYouth.push(rec);populateAllSelects();}
+  document.getElementById('add-step-2').style.display='none';document.getElementById('add-step-3').style.display='block';document.getElementById('add-success-name').textContent=name+' added!';
+  btn.disabled=false;btn.textContent='Confirm & Save';toast(name+' added to Airtable');
+}
+function resetAddYouth(){['add-step-2','add-step-3'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('add-step-1').style.display='block';['ny-fname','ny-lname','ny-shines','ny-coach','ny-cm','ny-pin'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+
+async function loadDirActivity(){
+  const el=document.getElementById('dir-activity-list'),ld=document.getElementById('dir-activity-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Monthly Activity Tracker','?fields[]=Youth Name&fields[]=Month&fields[]=Life Coach Signature&fields[]=Status&sort[0][field]=Month&sort[0][direction]=desc&maxRecords=20');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128202;</div><div class="empty-title">No activity reports yet</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Month']||'')+' \u00b7 '+(r.fields['Life Coach Signature']||'')+'</div></div><span class="badge '+(r.fields['Status']==='Complete'?'badge-green':'badge-amber')+'">'+(r.fields['Status']||'Submitted')+'</span><button class="btn btn-sm" style="margin-left:8px" onclick="toast(\'PDF -- connect Zapier to Google Drive\')">PDF &#8595;</button></div>').join('')+'</div>';
+}
+
+async function loadGrievances(){
+  const el=document.getElementById('grievances-list'),ld=document.getElementById('grievances-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Grievances','?fields[]=Youth Name&fields[]=Date Filed&fields[]=Grievance Type&fields[]=Status&fields[]=Assigned To&sort[0][field]=Date Filed&sort[0][direction]=desc');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-title">No grievances logged</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+' \u2014 '+(r.fields['Grievance Type']||'')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Date Filed']||'')+' \u00b7 '+(r.fields['Assigned To']||'Unassigned')+'</div></div><span class="badge '+(r.fields['Status']==='Resolved'?'badge-green':r.fields['Status']==='Open'?'badge-red':'badge-amber')+'">'+(r.fields['Status']||'Open')+'</span></div>').join('')+'</div>';
+}
+function openNewGrievance(){document.getElementById('grievance-modal').classList.add('open');document.getElementById('griev-date').value=new Date().toISOString().split('T')[0];}
+async function saveGrievance(){
+  const youthId=document.getElementById('griev-youth').value;if(!youthId){toast('Please select a youth');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Unknown';
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  await atCreate('Grievances',{'Youth Name':youthName,'Date Filed':document.getElementById('griev-date').value,'Grievance Type':document.getElementById('griev-type').value,'Description':document.getElementById('griev-desc').value,'Assigned To':document.getElementById('griev-assigned').value,'Status':'Open'});
+  document.getElementById('griev-save-msg').style.display='block';document.getElementById('griev-save-msg').textContent='Grievance logged for '+youthName;
+  btn.disabled=false;btn.textContent='Save Grievance';toast('Grievance saved');
+  setTimeout(()=>{closeModal('grievance-modal');loadGrievances();},1200);
+}
+
+async function loadSentAnnouncements(){
+  const el=document.getElementById('sent-ann-list');
+  const data=await atFetch('Town Hall Events','?fields[]=Title&fields[]=Date&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=5');
+  const recs=data.records||[];
+  if(recs.length===0){el.innerHTML='<div style="font-size:12px;color:var(--muted)">No announcements sent yet.</div>';return;}
+  el.innerHTML=recs.map(r=>'<div class="card" style="margin-bottom:8px"><div style="font-size:13px;font-weight:600">'+(r.fields['Title']||'Announcement')+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px">'+(r.fields['Date']||'')+'</div></div>').join('');
+}
+async function sendAnnouncement(){
+  const msg=document.getElementById('ann-body').value;const subject=document.getElementById('ann-subject').value;
+  if(!msg||!subject){toast('Please enter a subject and message');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Sending...';
+  await atCreate('Town Hall Events',{Title:subject,Message:msg,Date:new Date().toISOString().split('T')[0],From:currentUser.name,Audience:document.getElementById('ann-audience').value,Type:'Announcement'});
+  document.getElementById('ann-sent').style.display='block';document.getElementById('ann-body').value='';document.getElementById('ann-subject').value='';
+  btn.disabled=false;btn.textContent='Send Announcement';toast('Announcement sent');loadSentAnnouncements();
+}
+async function aiDraftAnnouncement(){
+  const subject=document.getElementById('ann-subject').value||'general update';const btn=event.target;btn.disabled=true;btn.textContent='Drafting...';
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,system:'Write brief, warm, professional announcements for YESS ILP nonprofit. Under 80 words.',messages:[{role:'user',content:'Draft an announcement about: '+subject+'. From the Program Director of YESS ILP.'}]})});const data=await resp.json();document.getElementById('ann-body').value=data.content[0].text;}
+  catch(e){toast('AI unavailable');}
+  btn.disabled=false;btn.textContent='&#10022; AI Draft';
+}
+
+async function loadDirDocs(){
+  const el=document.getElementById('dir-docs-list'),ld=document.getElementById('dir-docs-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Documents','?fields[]=Youth Name&fields[]=Document Type&fields[]=Date Uploaded&fields[]=Status&sort[0][field]=Date Uploaded&sort[0][direction]=desc&maxRecords=30');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128194;</div><div class="empty-title">No documents yet</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="font-size:20px">&#128196;</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Document Type']||'Document')+' \u00b7 '+(r.fields['Date Uploaded']||'')+'</div></div><span class="badge '+(r.fields['Status']==='Verified'?'badge-green':'badge-amber')+'">'+(r.fields['Status']||'Pending')+'</span></div>').join('')+'</div>';
+}
+
+function exportActivityPDF(){
+  const youthId=document.getElementById('exp-youth').value;if(!youthId){toast('Please select a youth');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Youth';const month=document.getElementById('exp-month').value;
+  document.getElementById('exp-msg').style.display='block';
+  document.getElementById('exp-msg').innerHTML='<strong>Export ready:</strong> '+youthName+' -- '+month+'<br><span style="font-size:11px">Set up Zapier: Airtable trigger to Google Drive PDF.</span>';
+  toast('Export queued');
+}
+async function generateProgramSummary(){
+  const btn=event.target;btn.disabled=true;btn.textContent='Generating...';
+  const active=allYouth.filter(y=>y.fields['Status']==='Active').length;
+  const bridge=allYouth.filter(y=>y.fields['Program']==='Bridge Connect').length;
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:'Write professional program summaries for YESS, a nonprofit ILP for youth 18-21 in extended foster care in Metro Atlanta. Two sites: Ashford - College Park (5259) and Reserve - DeKalb (5258). Programs: ILP and Bridge Connect.',messages:[{role:'user',content:'Write a program summary. '+active+' active youth, '+bridge+' Bridge Connect. 7 domains: housing, employment, education, health/wellbeing, savings, connections, life skills. 3 paragraphs.'}]})});const data=await resp.json();const out=document.getElementById('summary-output');out.style.display='block';out.innerHTML='<div class="card"><div class="slabel" style="margin-bottom:8px">AI Program Summary</div><div style="font-size:13px;line-height:1.7">'+data.content[0].text+'</div><div class="btn-row"><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest(\'.card\').querySelector(\'div:nth-child(2)\').textContent);toast(\'Copied!\')">Copy</button></div></div>';}
+  catch(e){toast('AI unavailable');}
+  btn.disabled=false;btn.textContent='&#10022; Generate with AI';
+}
+
+async function loadCEODash(){
+  const ld=document.getElementById('ceo-dash-loading'),ct=document.getElementById('ceo-dash-content');
+  ld.style.display='flex';ct.style.display='none';
+  const data=await atFetch('Youth Profiles','?fields[]=Status&fields[]=Tier&fields[]=Site&fields[]=Program');
+  const recs=data.records||[];
+  const active=recs.filter(r=>r.fields['Status']==='Active').length;
+  const cp=recs.filter(r=>r.fields['Site']==='Ashford - College Park (5259)').length;
+  const dk=recs.filter(r=>r.fields['Site']==='Reserve - DeKalb (5258)').length;
+  const bridge=recs.filter(r=>r.fields['Program']==='Bridge Connect').length;
+  document.getElementById('ceo-stats').innerHTML='<div class="stat-card"><div class="stat-n" style="color:var(--green)">'+active+'</div><div class="stat-l">Active youth</div></div><div class="stat-card"><div class="stat-n">'+cp+'</div><div class="stat-l">Ashford</div></div><div class="stat-card"><div class="stat-n">'+dk+'</div><div class="stat-l">Reserve</div></div><div class="stat-card"><div class="stat-n" style="color:var(--purple)">'+bridge+'</div><div class="stat-l">Bridge Connect</div></div>';
+  document.getElementById('ceo-cp-stats').innerHTML='<div style="font-size:13px;font-weight:600;margin-bottom:4px">'+cp+' youth enrolled</div><div class="pbar-wrap" style="height:8px"><div class="pbar" style="height:8px;background:var(--green);width:'+Math.min(cp*8,100)+'%"></div></div>';
+  document.getElementById('ceo-dk-stats').innerHTML='<div style="font-size:13px;font-weight:600;margin-bottom:4px">'+dk+' youth enrolled</div><div class="pbar-wrap" style="height:8px"><div class="pbar" style="height:8px;background:var(--green);width:'+Math.min(dk*8,100)+'%"></div></div>';
+  const staffData=await atFetch('Staff','?fields[]=Name&fields[]=Role&maxRecords=10');
+  const staffRecs=staffData.records||[];
+  document.getElementById('ceo-staff-perf').innerHTML=staffRecs.length===0?'<div style="font-size:12px;color:var(--muted)">Add staff to the Staff table in Airtable.</div>':staffRecs.map(s=>'<div class="row-item"><div style="flex:1"><div style="font-size:13px;font-weight:600">'+s.fields['Name']+'</div><div style="font-size:11px;color:var(--muted)">'+(s.fields['Role']||'Staff')+'</div></div><span class="badge badge-green">Active</span></div>').join('');
+  ld.style.display='none';ct.style.display='block';
+}
+async function loadCEORoster(){
+  const el=document.getElementById('ceo-roster-list'),ld=document.getElementById('ceo-roster-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Youth Profiles','?fields[]=Name&fields[]=Status&fields[]=Tier&fields[]=Site&fields[]=Life Coach&fields[]=Program&sort[0][field]=Name');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128101;</div><div class="empty-title">No youth yet</div></div>';return;}
+  el.innerHTML=recs.map(y=>{const tier=y.fields['Tier']||1;return'<div class="card" style="margin-bottom:8px"><div class="row-item" style="border:none"><div class="av" style="width:34px;height:34px;background:var(--green-light);color:var(--green-dark);font-size:12px">'+(y.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+y.fields['Name']+(y.fields['Program']==='Bridge Connect'?' <span class="badge badge-purple" style="font-size:10px">Bridge</span>':'')+'</div><div style="font-size:11px;color:var(--muted)">'+(y.fields['Site']||'')+' \u00b7 '+(y.fields['Life Coach']||'Unassigned')+'</div></div><span class="badge '+(tier==1?'badge-green':tier==2?'badge-amber':'badge-purple')+'">Tier '+tier+'</span></div></div>';}).join('');
+}
+async function loadCEOAnnouncements(){
+  const el=document.getElementById('ceo-ann-list');
+  const data=await atFetch('Town Hall Events','?fields[]=Title&fields[]=Message&fields[]=Date&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=5');
+  const recs=data.records||[];
+  if(recs.length===0){el.innerHTML='<div style="font-size:12px;color:var(--muted)">No announcements yet.</div>';return;}
+  el.innerHTML=recs.map(r=>'<div class="ann-card"><div class="ann-from">From CEO</div><div class="ann-msg">'+(r.fields['Message']||r.fields['Title']||'')+'</div><div class="ann-date">'+(r.fields['Date']||'')+'</div></div>').join('');
+}
+async function sendCEOAnnouncement(){
+  const msg=document.getElementById('ceo-ann-body').value;if(!msg){toast('Please enter a message');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Sending...';
+  await atCreate('Town Hall Events',{Title:'CEO Announcement',Message:msg,Date:new Date().toISOString().split('T')[0],From:'Ebony Harris (CEO)',Audience:'all',Type:'Announcement'});
+  document.getElementById('ceo-ann-sent').style.display='block';document.getElementById('ceo-ann-body').value='';
+  btn.disabled=false;btn.textContent='Send to All';toast('Sent to all');loadCEOAnnouncements();
+}
+async function aiDraftCEOAnnouncement(){
+  const btn=event.target;btn.disabled=true;btn.textContent='Drafting...';
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,system:'Write brief warm CEO messages for YESS ILP nonprofit. Under 70 words.',messages:[{role:'user',content:'Draft an encouragement message from CEO Ebony Harris to YESS youth and staff.'}]})});const data=await resp.json();document.getElementById('ceo-ann-body').value=data.content[0].text;}
+  catch(e){toast('AI unavailable');}
+  btn.disabled=false;btn.textContent='&#10022; AI Draft';
+}
+async function generateExecutiveNarrative(){
+  const btn=event.target;btn.disabled=true;btn.textContent='Generating...';
+  const period=document.getElementById('ceo-period').value;const audience=document.getElementById('ceo-audience').value;
+  const active=allYouth.filter(y=>y.fields['Status']==='Active').length;
+  const bridge=allYouth.filter(y=>y.fields['Program']==='Bridge Connect').length;
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:700,system:'Write executive program narratives for YESS, Metro Atlanta nonprofit. ILP for youth 18-21 in Extended Foster Care. DFCS/RBWO. Sites: Ashford - College Park (5259) and Reserve - DeKalb (5258). Programs: ILP and Bridge Connect. CEO: Ebony Harris. Write for '+audience+'.',messages:[{role:'user',content:'Executive narrative for '+period+'. '+active+' active youth including '+bridge+' Bridge Connect. 7 goal domains. 3 paragraphs.'}]})});const data=await resp.json();const out=document.getElementById('ceo-narrative-output');out.style.display='block';out.innerHTML='<div class="card"><div class="slabel" style="margin-bottom:8px">Executive Narrative -- '+period+'</div><div style="font-size:13px;line-height:1.7">'+data.content[0].text+'</div><div class="btn-row"><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest(\'.card\').querySelector(\'div:nth-child(2)\').textContent);toast(\'Copied!\')">Copy</button></div></div>';}
+  catch(e){toast('AI unavailable');}
+  btn.disabled=false;btn.textContent='&#10022; Generate Narrative';
+}
+
+// ═══════════════════════════════
+// CLOTHING ALLOWANCE — COACH
+// ═══════════════════════════════
+function loadCoachClothingScreen(){
+  const el=document.getElementById('cc-youth');
+  el.innerHTML='<option value="">-- Select youth --</option>';
+  allYouth.forEach(y=>{const o=document.createElement('option');o.value=y.id;o.textContent=y.fields['Name']||'Unnamed';el.appendChild(o);});
+  document.getElementById('cc-summary').style.display='none';
+}
+async function loadCoachClothing(){
+  const youthId=document.getElementById('cc-youth').value;
+  if(!youthId){document.getElementById('cc-summary').style.display='none';return;}
+  const youth=allYouth.find(y=>y.id===youthId);
+  const youthName=youth?.fields['Name']||'Unknown';
+  document.getElementById('cc-summary').style.display='block';
+  // Load purchases for this youth this FY
+  const data=await atFetch('Clothing Allowance','?filterByFormula=AND({Youth Name}="'+youthName+'",{FY}="'+CLOTHING_FY+'")&fields[]=Amount&fields[]=Purchase Date&fields[]=Description&fields[]=Receipt Uploaded&fields[]=Life Coach&sort[0][field]=Purchase Date&sort[0][direction]=desc');
+  const recs=data.records||[];
+  const spent=recs.reduce((sum,r)=>sum+(parseFloat(r.fields['Amount'])||0),0);
+  const remaining=CLOTHING_LIMIT-spent;
+  const pct=Math.min((spent/CLOTHING_LIMIT)*100,100);
+  const color=pct>=100?'var(--red)':pct>=80?'var(--amber)':'var(--green)';
+  const statusText=pct>=100?'&#128680; Limit Reached':pct>=80?'&#9888; Approaching Limit':'&#10003; Available';
+  document.getElementById('cc-balance-card').innerHTML=
+    '<div style="font-size:13px;font-weight:700;margin-bottom:14px">'+youthName+' \u00b7 Clothing Allowance Summary</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">'+
+    '<div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Annual Limit</div><div style="font-size:18px;font-weight:700">$'+CLOTHING_LIMIT.toFixed(2)+'</div></div>'+
+    '<div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Spent This FY</div><div style="font-size:18px;font-weight:700;color:'+color+'">$'+spent.toFixed(2)+'</div></div>'+
+    '<div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Remaining</div><div style="font-size:18px;font-weight:700;color:'+color+'">$'+remaining.toFixed(2)+' '+statusText+'</div></div>'+
+    '</div>'+
+    '<div class="pbar-wrap" style="height:12px"><div class="pbar" style="height:12px;background:'+color+';width:'+pct+'%"></div></div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-top:4px">'+pct.toFixed(0)+'% used this FY</div>';
+  // History
+  const hist=document.getElementById('cc-history');
+  if(recs.length===0){hist.innerHTML='<div style="font-size:12px;color:var(--muted)">No purchases logged yet this FY.</div>';}
+  else{hist.innerHTML='<table class="data-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Receipt</th></tr></thead><tbody>'+recs.map(r=>'<tr><td>'+(r.fields['Purchase Date']||'')+'</td><td>'+(r.fields['Description']||'')+'</td><td style="font-weight:600">$'+(parseFloat(r.fields['Amount'])||0).toFixed(2)+'</td><td>'+(r.fields['Receipt Uploaded']?'<span class="badge badge-green">&#10003; Uploaded</span>':'<span class="badge badge-amber">Pending</span>')+'</td></tr>').join('')+'</tbody></table>'+'<div style="text-align:right;font-size:13px;font-weight:700;margin-top:8px;color:var(--green)">FY Total: $'+spent.toFixed(2)+'</div>';}
+  document.getElementById('cc-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('cc-amount').value='';document.getElementById('cc-desc').value='';document.getElementById('cc-receipt').checked=false;
+  document.getElementById('cc-preview').style.display='none';document.getElementById('cc-save-btn').disabled=remaining<=0;
+}
+function previewClothingPurchase(){
+  const youthId=document.getElementById('cc-youth').value;if(!youthId)return;
+  const youth=allYouth.find(y=>y.id===youthId);const youthName=youth?.fields['Name']||'Unknown';
+  const amt=parseFloat(document.getElementById('cc-amount').value)||0;
+  if(amt<=0){document.getElementById('cc-preview').style.display='none';document.getElementById('cc-save-btn').disabled=true;return;}
+  // Recalculate spent — use cached value from balance card text
+  const balCard=document.getElementById('cc-balance-card').innerHTML;
+  const spentMatch=balCard.match(/Spent This FY[\s\S]*?\$([\d.]+)/);
+  const spent=spentMatch?parseFloat(spentMatch[1]):0;
+  const remaining=CLOTHING_LIMIT-spent;
+  const afterPurchase=remaining-amt;
+  const prev=document.getElementById('cc-preview');prev.style.display='block';
+  if(amt>remaining){prev.style.background='var(--red-light)';prev.style.color='var(--red)';prev.style.border='1px solid #F0B0AA';prev.innerHTML='&#128680; This purchase of $'+amt.toFixed(2)+' exceeds the available balance of $'+remaining.toFixed(2)+'. Maximum allowed: $'+remaining.toFixed(2)+'.';document.getElementById('cc-save-btn').disabled=true;}
+  else{prev.style.background='var(--green-light)';prev.style.color='var(--green-dark)';prev.style.border='1px solid #B8DDB2';prev.innerHTML='&#10003; Remaining after this purchase: $'+afterPurchase.toFixed(2);document.getElementById('cc-save-btn').disabled=false;}
+}
+async function saveClothingPurchase(){
+  const youthId=document.getElementById('cc-youth').value;if(!youthId)return;
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Unknown';
+  const amt=parseFloat(document.getElementById('cc-amount').value)||0;if(amt<=0){toast('Please enter a valid amount');return;}
+  const btn=document.getElementById('cc-save-btn');btn.disabled=true;btn.textContent='Saving...';
+  await atCreate('Clothing Allowance',{'Youth Name':youthName,'Purchase Date':document.getElementById('cc-date').value,'Amount':amt,'Description':document.getElementById('cc-desc').value,'Receipt Uploaded':document.getElementById('cc-receipt').checked,'Life Coach':currentUser.name,'FY':CLOTHING_FY});
+  document.getElementById('cc-save-msg').style.display='block';document.getElementById('cc-save-msg').textContent='Purchase saved for '+youthName;
+  btn.textContent='Save Purchase';toast('Purchase saved to Airtable');
+  loadCoachClothing();
+}
+
+// ═══════════════════════════════
+// CLOTHING ALLOWANCE — ALL YOUTH (Director/CEO/SA)
+// ═══════════════════════════════
+async function loadAllClothing(role){
+  const loadingId=role+'-clothing-loading';const contentId=role+'-clothing-content';
+  const ld=document.getElementById(loadingId);const ct=document.getElementById(contentId);
+  if(ld)ld.style.display='flex';if(ct)ct.innerHTML='';
+  const data=await atFetch('Clothing Allowance','?filterByFormula={FY}="'+CLOTHING_FY+'"&fields[]=Youth Name&fields[]=Amount&fields[]=Purchase Date&fields[]=Receipt Uploaded&sort[0][field]=Youth Name');
+  const recs=data.records||[];
+  if(ld)ld.style.display='none';
+  // Group by youth
+  const byYouth={};recs.forEach(r=>{const yn=r.fields['Youth Name']||'Unknown';if(!byYouth[yn])byYouth[yn]=[];byYouth[yn].push(r);});
+  // Add youth with no purchases
+  allYouth.filter(y=>y.fields['Status']==='Active').forEach(y=>{const n=y.fields['Name'];if(!byYouth[n])byYouth[n]=[];});
+  if(Object.keys(byYouth).length===0){if(ct)ct.innerHTML='<div class="empty"><div class="empty-icon">&#128248;</div><div class="empty-title">No clothing purchases yet this FY</div></div>';return;}
+  let html='<div class="card"><table class="data-table"><thead><tr><th>Youth</th><th>Spent This FY</th><th>Remaining</th><th>Progress</th><th>Status</th></tr></thead><tbody>';
+  Object.entries(byYouth).sort().forEach(([name,purchases])=>{
+    const spent=purchases.reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0);
+    const remaining=CLOTHING_LIMIT-spent;const pct=Math.min((spent/CLOTHING_LIMIT)*100,100);
+    const color=pct>=100?'var(--red)':pct>=80?'var(--amber)':'var(--green)';
+    const badge=pct>=100?'<span class="badge badge-red">&#128680; Over Limit</span>':pct>=80?'<span class="badge badge-amber">&#9888; 80%+</span>':'<span class="badge badge-green">OK</span>';
+    html+='<tr><td style="font-weight:600">'+name+'</td><td style="font-weight:600;color:'+color+'">$'+spent.toFixed(2)+'</td><td>$'+Math.max(0,remaining).toFixed(2)+'</td><td><div class="pbar-wrap" style="height:8px;width:100px"><div class="pbar" style="height:8px;background:'+color+';width:'+pct+'%"></div></div></td><td>'+badge+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  // Summary stats
+  const totalSpent=recs.reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0);
+  const atLimit=Object.entries(byYouth).filter(([n,p])=>p.reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0)>=CLOTHING_LIMIT).length;
+  const near=Object.entries(byYouth).filter(([n,p])=>{const s=p.reduce((t,r)=>t+(parseFloat(r.fields['Amount'])||0),0);return s>=CLOTHING_LIMIT*0.8&&s<CLOTHING_LIMIT;}).length;
+  html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px"><div class="stat-card"><div class="stat-n" style="color:var(--green)">$'+totalSpent.toFixed(2)+'</div><div class="stat-l">Total spent FY2027</div></div><div class="stat-card"><div class="stat-n" style="color:var(--amber)">'+near+'</div><div class="stat-l">Youth at 80%+</div></div><div class="stat-card"><div class="stat-n" style="color:var(--red)">'+atLimit+'</div><div class="stat-l">Youth at limit</div></div></div>'+html;
+  if(ct)ct.innerHTML=html;
+}
+
+// ═══════════════════════════════
+// END OF MONTH REPORT
+// ═══════════════════════════════
+async function loadEOM(){buildEOMReport('eom');}
+async function loadSAEOM(){buildEOMReport('sa-eom');}
+async function buildEOMReport(prefix){
+  const monthEl=document.getElementById(prefix+'-month')||document.getElementById('eom-month');
+  const month=monthEl?.value||'July 2026';
+  const ld=document.getElementById(prefix+'-loading');const ct=document.getElementById(prefix+'-content');
+  ld.style.display='flex';ct.style.display='none';
+  // Parse month to get date range
+  const monthDate=new Date(month+' 1');
+  const startDate=new Date(monthDate.getFullYear(),monthDate.getMonth(),1).toISOString().split('T')[0];
+  const endDate=new Date(monthDate.getFullYear(),monthDate.getMonth()+1,0).toISOString().split('T')[0];
+  // Admissions this month
+  const admData=await atFetch('Youth Profiles','?filterByFormula=AND({Intake Date}>=\''+startDate+'\',{Intake Date}<=\''+endDate+'\')&fields[]=Name&fields[]=Intake Date&fields[]=Site&fields[]=Program');
+  const admRecs=admData.records||[];
+  // Discharges this month
+  const disData=await atFetch('Youth Profiles','?filterByFormula=AND({Exit Date}>=\''+startDate+'\',{Exit Date}<=\''+endDate+'\')&fields[]=Name&fields[]=Exit Date&fields[]=Site');
+  const disRecs=disData.records||[];
+  // Clothing this month
+  const clothData=await atFetch('Clothing Allowance','?filterByFormula=AND({Purchase Date}>=\''+startDate+'\',{Purchase Date}<=\''+endDate+'\',{FY}="'+CLOTHING_FY+'")&fields[]=Youth Name&fields[]=Amount&fields[]=Purchase Date&fields[]=Description&fields[]=Receipt Uploaded');
+  const clothRecs=clothData.records||[];
+  // Update counts
+  document.getElementById(prefix+'-admissions-count').textContent=admRecs.length;
+  document.getElementById(prefix+'-discharges-count').textContent=disRecs.length;
+  // Admissions list
+  const admList=document.getElementById(prefix+'-admissions-list');
+  admList.innerHTML=admRecs.length===0?'<div style="font-size:12px;color:var(--muted)">No new admissions this month.</div>':admRecs.map(r=>'<div class="row-item"><div class="av" style="width:32px;height:32px;background:var(--green-light);color:var(--green-dark);font-size:12px">'+(r.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Site']||'')+' \u00b7 '+(r.fields['Program']||'ILP')+'</div></div><div style="font-size:12px;color:var(--muted)">Admitted: '+( r.fields['Intake Date']||'')+'</div></div>').join('');
+  // Discharges list
+  const disList=document.getElementById(prefix+'-discharges-list');
+  disList.innerHTML=disRecs.length===0?'<div style="font-size:12px;color:var(--muted)">No discharges this month.</div>':disRecs.map(r=>'<div class="row-item"><div class="av" style="width:32px;height:32px;background:var(--red-light);color:var(--red);font-size:12px">'+(r.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Site']||'')+'</div></div><div style="font-size:12px;color:var(--muted)">Exited: '+(r.fields['Exit Date']||'')+'</div></div>').join('');
+  // Clothing by youth this month
+  const clothByYouth={};clothRecs.forEach(r=>{const yn=r.fields['Youth Name']||'Unknown';if(!clothByYouth[yn])clothByYouth[yn]=0;clothByYouth[yn]+=parseFloat(r.fields['Amount'])||0;});
+  const totalCloth=clothRecs.reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0);
+  // Load FY totals for each youth for flags
+  const fyData=await atFetch('Clothing Allowance','?filterByFormula={FY}="'+CLOTHING_FY+'"&fields[]=Youth Name&fields[]=Amount');
+  const fyByYouth={};(fyData.records||[]).forEach(r=>{const yn=r.fields['Youth Name']||'Unknown';if(!fyByYouth[yn])fyByYouth[yn]=0;fyByYouth[yn]+=parseFloat(r.fields['Amount'])||0;});
+  const clothList=document.getElementById(prefix+'-clothing-list');
+  // Show ALL active youth including $0 spenders
+  const activeYouth=allYouth.filter(y=>y.fields['Status']==='Active');
+  if(activeYouth.length===0){clothList.innerHTML='<div style="font-size:12px;color:var(--muted)">No active youth.</div>';}
+  else{
+    clothList.innerHTML='<table class="data-table"><thead><tr><th>Youth</th><th>This Month</th><th>FY Total</th><th>FY Progress</th><th>Flag</th></tr></thead><tbody>'+
+    activeYouth.map(y=>{
+      const name=y.fields['Name']||'Unknown';
+      const monthAmt=clothByYouth[name]||0;
+      const fyAmt=fyByYouth[name]||0;
+      const pct=Math.min((fyAmt/CLOTHING_LIMIT)*100,100);
+      const color=pct>=100?'var(--red)':pct>=80?'var(--amber)':'var(--green)';
+      const flag=pct>=100?'<span class="badge badge-red">&#128680; Over</span>':pct>=80?'<span class="badge badge-amber">&#9888; 80%+</span>':'<span class="badge badge-green">OK</span>';
+      return'<tr><td style="font-weight:600">'+name+'</td><td style="font-weight:'+(monthAmt>0?'700':'400')+';color:'+(monthAmt>0?'var(--green-dark)':'var(--muted)')+'">$'+monthAmt.toFixed(2)+'</td><td style="color:'+color+'">$'+fyAmt.toFixed(2)+'</td><td><div class="pbar-wrap" style="height:8px;width:80px"><div class="pbar" style="height:8px;background:'+color+';width:'+pct+'%"></div></div></td><td>'+flag+'</td></tr>';
+    }).join('')+'</tbody></table>';
+  }
+  document.getElementById(prefix+'-clothing-total').textContent='$'+totalCloth.toFixed(2);
+  ld.style.display='none';ct.style.display='block';
+}
+
+// ═══════════════════════════════
+// SYSTEM ADMIN — DASHBOARD
+// ═══════════════════════════════
+async function loadSADash(){
+  const ld=document.getElementById('sa-dash-loading'),ct=document.getElementById('sa-dash-content');
+  ld.style.display='flex';ct.style.display='none';
+  const data=await atFetch('Youth Profiles','?fields[]=Status&fields[]=Tier&fields[]=Site&fields[]=Program');
+  const recs=data.records||[];
+  const active=recs.filter(r=>r.fields['Status']==='Active').length;
+  const onHold=recs.filter(r=>r.fields['Status']==='On Hold').length;
+  const bridge=recs.filter(r=>r.fields['Program']==='Bridge Connect').length;
+  document.getElementById('sa-dash-sub').textContent='YESS ILP \u00b7 '+new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'})+' \u00b7 System Administration';
+  document.getElementById('sa-stats').innerHTML='<div class="stat-card"><div class="stat-n" style="color:var(--green)">'+active+'</div><div class="stat-l">Active youth</div></div><div class="stat-card"><div class="stat-n" style="color:var(--amber)">'+onHold+'</div><div class="stat-l">On hold</div></div><div class="stat-card"><div class="stat-n">'+bridge+'</div><div class="stat-l">Bridge Connect</div></div>';
+  document.getElementById('sa-tier-dist').innerHTML='<div class="stat-card" style="text-align:center"><div class="stat-n" style="color:var(--green)">'+recs.filter(r=>r.fields['Tier']==1).length+'</div><div class="stat-l">Tier 1</div></div><div class="stat-card" style="text-align:center"><div class="stat-n" style="color:var(--amber)">'+recs.filter(r=>r.fields['Tier']==2).length+'</div><div class="stat-l">Tier 2</div></div><div class="stat-card" style="text-align:center"><div class="stat-n" style="color:var(--purple)">'+recs.filter(r=>r.fields['Tier']==3).length+'</div><div class="stat-l">Tier 3</div></div>';
+  document.getElementById('sa-domain-bars').innerHTML=DOMAINS.map((d,i)=>{const pct=[72,58,81,45,67,39,55][i];const color=pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';return'<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>'+d+'</span><span style="font-weight:700;color:'+color+'">'+pct+'%</span></div><div class="pbar-wrap" style="height:8px"><div class="pbar" style="height:8px;background:'+color+';width:'+pct+'%"></div></div></div>';}).join('');
+  document.getElementById('sa-flags').innerHTML=active>0?'<div class="alert alert-amber">&#9888; Review monthly activity submissions for completeness.</div>':'<div class="alert alert-green">&#10003; No compliance flags.</div>';
+  ld.style.display='none';ct.style.display='block';
+}
+
+// ═══════════════════════════════
+// SYSTEM ADMIN — ROSTER
+// ═══════════════════════════════
+async function loadSARoster(){
+  const el=document.getElementById('sa-roster-list'),ld=document.getElementById('sa-roster-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Youth Profiles','?fields[]=Name&fields[]=Status&fields[]=Tier&fields[]=Life Coach&fields[]=Site&fields[]=Program&sort[0][field]=Name');
+  allYouth=data.records||[];ld.style.display='none';renderSARoster();
+}
+function renderSARoster(){
+  const el=document.getElementById('sa-roster-list');
+  const sf=document.getElementById('sa-f-status')?.value||'all';const sitef=document.getElementById('sa-f-site')?.value||'all';
+  const filtered=allYouth.filter(y=>(sf==='all'||y.fields['Status']===sf)&&(sitef==='all'||y.fields['Site']===sitef));
+  if(filtered.length===0){el.innerHTML='<div class="empty"><div class="empty-title">No youth match these filters</div></div>';return;}
+  el.innerHTML=filtered.map(y=>{const tier=y.fields['Tier']||1;const status=y.fields['Status']||'Active';return'<div class="card" style="margin-bottom:8px"><div class="row-item" style="border:none"><div class="av" style="width:36px;height:36px;background:var(--green-light);color:var(--green-dark);font-size:13px">'+(y.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+y.fields['Name']+' <span class="badge '+(status==='Active'?'badge-green':status==='On Hold'?'badge-amber':'badge-gray')+'" style="font-size:10px">'+status+'</span>'+(y.fields['Program']==='Bridge Connect'?' <span class="badge badge-purple" style="font-size:10px">Bridge</span>':'')+'</div><div style="font-size:11px;color:var(--muted)">'+(y.fields['Life Coach']||'Unassigned')+' \u00b7 '+(y.fields['Site']||'')+'</div></div><span class="badge '+(tier==1?'badge-green':tier==2?'badge-amber':'badge-purple')+'">Tier '+tier+'</span></div></div>';}).join('');
+}
+
+// ═══════════════════════════════
+// SYSTEM ADMIN — ACTIVITY, GRIEVANCES, DOCS
+// ═══════════════════════════════
+async function loadSAActivity(){
+  const el=document.getElementById('sa-activity-list'),ld=document.getElementById('sa-activity-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Monthly Activity Tracker','?fields[]=Youth Name&fields[]=Month&fields[]=Life Coach Signature&fields[]=Status&sort[0][field]=Month&sort[0][direction]=desc&maxRecords=20');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128202;</div><div class="empty-title">No activity reports yet</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Month']||'')+' \u00b7 '+(r.fields['Life Coach Signature']||'')+'</div></div><span class="badge '+(r.fields['Status']==='Complete'?'badge-green':'badge-amber')+'">'+(r.fields['Status']||'Submitted')+'</span><button class="btn btn-sm" style="margin-left:8px" onclick="toast(\'PDF -- connect Zapier to Google Drive\')">PDF &#8595;</button></div>').join('')+'</div>';
+}
+async function loadSAGrievances(){
+  const el=document.getElementById('sa-grievances-list'),ld=document.getElementById('sa-grievances-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Grievances','?fields[]=Youth Name&fields[]=Date Filed&fields[]=Grievance Type&fields[]=Status&fields[]=Assigned To&sort[0][field]=Date Filed&sort[0][direction]=desc');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-title">No grievances logged</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+' \u2014 '+(r.fields['Grievance Type']||'')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Date Filed']||'')+' \u00b7 '+(r.fields['Assigned To']||'Unassigned')+'</div></div><span class="badge '+(r.fields['Status']==='Resolved'?'badge-green':r.fields['Status']==='Open'?'badge-red':'badge-amber')+'">'+(r.fields['Status']||'Open')+'</span></div>').join('')+'</div>';
+}
+async function loadSADocs(){
+  const el=document.getElementById('sa-docs-list'),ld=document.getElementById('sa-docs-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Documents','?fields[]=Youth Name&fields[]=Document Type&fields[]=Date Uploaded&fields[]=Status&sort[0][field]=Date Uploaded&sort[0][direction]=desc&maxRecords=30');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128194;</div><div class="empty-title">No documents yet</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div style="font-size:20px">&#128196;</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Youth Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Document Type']||'Document')+' \u00b7 '+(r.fields['Date Uploaded']||'')+'</div></div><span class="badge '+(r.fields['Status']==='Verified'?'badge-green':'badge-amber')+'">'+(r.fields['Status']||'Pending')+'</span></div>').join('')+'</div>';
+}
+
+// ═══════════════════════════════
+// SYSTEM ADMIN — EXPORTS
+// ═══════════════════════════════
+function populateSAExportSelects(){
+  const el=document.getElementById('sa-exp-youth');if(!el)return;
+  el.innerHTML='<option value="">-- Select youth --</option>';
+  allYouth.forEach(y=>{const o=document.createElement('option');o.value=y.id;o.textContent=y.fields['Name']||'Unnamed';el.appendChild(o);});
+}
+function exportSAPDF(){
+  const youthId=document.getElementById('sa-exp-youth').value;if(!youthId){toast('Please select a youth');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Youth';const month=document.getElementById('sa-exp-month').value;
+  document.getElementById('sa-exp-msg').style.display='block';
+  document.getElementById('sa-exp-msg').innerHTML='<strong>Export ready:</strong> '+youthName+' \u2014 '+month+'<br><span style="font-size:11px">Set up Zapier: Airtable trigger to Google Drive PDF.</span>';
+  toast('Export queued');
+}
+async function generateSASummary(){
+  const btn=event.target;btn.disabled=true;btn.textContent='Generating...';
+  const active=allYouth.filter(y=>y.fields['Status']==='Active').length;
+  const bridge=allYouth.filter(y=>y.fields['Program']==='Bridge Connect').length;
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:'Write professional program summaries for YESS, a nonprofit ILP for youth 18-21 in extended foster care in Metro Atlanta.',messages:[{role:'user',content:'Write a program summary. '+active+' active youth, '+bridge+' Bridge Connect. 7 domains. 3 paragraphs.'}]})});const data=await resp.json();const out=document.getElementById('sa-summary-output');out.style.display='block';out.innerHTML='<div class="card"><div class="slabel" style="margin-bottom:8px">AI Program Summary</div><div style="font-size:13px;line-height:1.7">'+data.content[0].text+'</div></div>';}
+  catch(e){toast('AI unavailable');}
+  btn.disabled=false;btn.textContent='&#10022; Generate with AI';
+}
+
+// ═══════════════════════════════
+// SYSTEM ADMIN — STAFF MANAGEMENT
+// ═══════════════════════════════
+async function loadStaffManagement(){
+  const el=document.getElementById('sa-staff-list'),ld=document.getElementById('sa-staff-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Staff','?fields[]=Name&fields[]=Role&fields[]=Email&fields[]=Phone&fields[]=PIN&fields[]=Status&sort[0][field]=Name');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128101;</div><div class="empty-title">No staff added yet</div><div class="empty-sub">Click "+ Add Staff" to add your first staff member.</div></div>';return;}
+  el.innerHTML='<div class="card">'+recs.map(r=>'<div class="row-item"><div class="av" style="width:36px;height:36px;background:var(--green-light);color:var(--green-dark);font-size:13px">'+(r.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(r.fields['Name']||'Unknown')+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Role']||'Staff')+' \u00b7 '+(r.fields['Email']||'')+'</div></div><div style="display:flex;align-items:center;gap:8px"><div style="font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:600;color:var(--green);background:var(--green-light);padding:4px 10px;border-radius:20px">PIN: '+(r.fields['PIN']||'--')+'</div><span class="badge '+(r.fields['Status']==='Active'?'badge-green':'badge-gray')+'">'+(r.fields['Status']||'Active')+'</span></div></div>').join('')+'</div>';
+}
+function openAddStaff(){document.getElementById('addstaff-modal').classList.add('open');}
+async function saveNewStaff(){
+  const name=document.getElementById('ns-name').value;if(!name){toast('Please enter a name');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  await atCreate('Staff',{Name:name,Role:document.getElementById('ns-role').value,Email:document.getElementById('ns-email').value,Phone:document.getElementById('ns-phone').value,PIN:document.getElementById('ns-pin').value,Status:document.getElementById('ns-status').value});
+  document.getElementById('ns-save-msg').style.display='block';document.getElementById('ns-save-msg').textContent=name+' added to Staff table';
+  btn.disabled=false;btn.textContent='Save Staff Member';toast('Staff member saved');
+  setTimeout(()=>{closeModal('addstaff-modal');loadStaffManagement();},1200);
+}
+
+
+// LCM DASHBOARD
+async function loadLCMDash(){
+  const ld=document.getElementById('lcm-dash-loading'),ct=document.getElementById('lcm-dash-content');
+  ld.style.display='flex';ct.style.display='none';
+  // Populate youth select
+  const sel=document.getElementById('lcm-youth');
+  sel.innerHTML='<option value="">-- Select youth --</option>';
+  allYouth.forEach(y=>{const o=document.createElement('option');o.value=y.id;o.textContent=y.fields['Name']||'Unnamed';sel.appendChild(o);});
+  // Load pipeline
+  const data=await atFetch('Youth Profiles','?fields[]=Name&fields[]=Intake Status&fields[]=Referral Date&fields[]=Site&fields[]=Life Coach&sort[0][field]=Referral Date&sort[0][direction]=desc');
+  const recs=data.records||[];
+  const pipeline=recs.filter(r=>r.fields['Intake Status']&&r.fields['Intake Status']!=='Active');
+  const newRef=pipeline.filter(r=>r.fields['Intake Status']==='New Referral').length;
+  const scheduled=pipeline.filter(r=>r.fields['Intake Status']==='Intake Interview Scheduled').length;
+  const pending=pipeline.filter(r=>r.fields['Intake Status']==='Pending Intake').length;
+  document.getElementById('lcm-stats').innerHTML=
+    '<div class="stat-card"><div class="stat-n" style="color:var(--amber)">'+newRef+'</div><div class="stat-l">New referrals</div></div>'+
+    '<div class="stat-card"><div class="stat-n" style="color:var(--blue,#2471A3)">'+scheduled+'</div><div class="stat-l">Interviews scheduled</div></div>'+
+    '<div class="stat-card"><div class="stat-n" style="color:var(--purple)">'+pending+'</div><div class="stat-l">Pending intake</div></div>';
+  const pl=document.getElementById('lcm-pipeline-list');
+  if(pipeline.length===0){pl.innerHTML='<div class="alert alert-green">&#10003; No pending referrals right now.</div>';ld.style.display='none';ct.style.display='block';return;}
+  const statusColor={'New Referral':'badge-amber','Intake Interview Scheduled':'badge-blue','Interview Complete':'badge-purple','Pending Intake':'badge-amber','Denied':'badge-red','Withdrawn':'badge-gray','No Response':'badge-gray'};
+  pl.innerHTML=pipeline.map(r=>'<div class="card" style="margin-bottom:8px"><div class="row-item" style="border:none"><div class="av" style="width:34px;height:34px;background:var(--green-light);color:var(--green-dark);font-size:12px">'+(r.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+r.fields['Name']+'</div><div style="font-size:11px;color:var(--muted)">'+(r.fields['Site']||'')+' · Referred: '+(r.fields['Referral Date']||'Unknown')+'</div></div><span class="badge '+(statusColor[r.fields['Intake Status']]||'badge-gray')+'">'+(r.fields['Intake Status']||'Unknown')+'</span></div></div>').join('');
+  ld.style.display='none';ct.style.display='block';
+}
+
+// LCM INTAKE INTERVIEW
+async function saveIntakeInterview(){
+  const youthId=document.getElementById('lcm-youth').value;if(!youthId){toast('Please select a youth');return;}
+  const youthName=allYouth.find(y=>y.id===youthId)?.fields['Name']||'Unknown';
+  const outcome=document.getElementById('lcm-outcome').value;
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  await atUpdate('Youth Profiles',youthId,{'Intake Status':outcome,'Life Coach Manager Notes':document.getElementById('lcm-int-notes').value});
+  document.getElementById('lcm-int-msg').style.display='block';
+  document.getElementById('lcm-int-msg').textContent='✓ Intake interview saved for '+youthName+' — Status updated to: '+outcome;
+  btn.disabled=false;btn.textContent='Save Interview';toast('Interview saved');
+  document.getElementById('lcm-int-notes').value='';
+}
+
+// LCM ASSIGN LIFE COACH
+async function loadLCMAssign(){
+  const el=document.getElementById('lcm-assign-list'),ld=document.getElementById('lcm-assign-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Youth Profiles','?filterByFormula={Intake Status}="Pending Intake"&fields[]=Name&fields[]=Site&fields[]=Life Coach&fields[]=Intake Status');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#9786;</div><div class="empty-title">No youth pending intake</div><div class="empty-sub">Youth with status Pending Intake will appear here for life coach assignment.</div></div>';return;}
+  const coaches=allStaff.filter(s=>s.fields['Role']==='Life Coach');
+  el.innerHTML=recs.map(r=>'<div class="card" style="margin-bottom:10px" id="assign-'+r.id+'"><div style="font-size:13px;font-weight:600;margin-bottom:10px">'+r.fields['Name']+' · '+(r.fields['Site']||'')+'</div><label>Assign Life Coach</label><select id="coach-sel-'+r.id+'"><option value="">-- Select coach --</option>'+coaches.map(c=>'<option value="'+c.fields['Name']+'">'+c.fields['Name']+'</option>').join('')+'</select><div class="btn-row"><button class="btn btn-primary btn-sm" onclick="assignCoach("'+r.id+'",this)">Assign &#10003;</button></div></div>').join('');
+}
+async function assignCoach(id,btn){
+  const coachName=document.getElementById('coach-sel-'+id).value;if(!coachName){toast('Please select a life coach');return;}
+  btn.disabled=true;btn.textContent='Saving...';
+  await atUpdate('Youth Profiles',id,{'Life Coach':coachName,'Intake Status':'Active','Status':'Active'});
+  document.getElementById('assign-'+id).innerHTML='<div class="alert alert-green">✓ '+coachName+' assigned. Youth is now Active.</div>';
+  toast('Life coach assigned. Youth set to Active.');
+  allYouth=allYouth.map(y=>y.id===id?{...y,fields:{...y.fields,'Life Coach':coachName,'Status':'Active'}}:y);
+}
+
+// LCM CASELOADS
+async function loadLCMCaseloads(){
+  const el=document.getElementById('lcm-caseloads-list'),ld=document.getElementById('lcm-caseloads-loading');
+  ld.style.display='flex';el.innerHTML='';
+  const data=await atFetch('Youth Profiles','?filterByFormula={Status}="Active"&fields[]=Name&fields[]=Tier&fields[]=Site&fields[]=Life Coach&sort[0][field]=Life Coach');
+  const recs=data.records||[];ld.style.display='none';
+  if(recs.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">&#128101;</div><div class="empty-title">No active youth yet</div></div>';return;}
+  const byCoach={};recs.forEach(r=>{const c=r.fields['Life Coach']||'Unassigned';if(!byCoach[c])byCoach[c]=[];byCoach[c].push(r);});
+  el.innerHTML=Object.entries(byCoach).map(([coach,youth])=>'<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:700">'+coach+'</div><span class="badge badge-gray">'+youth.length+' youth</span></div>'+youth.map(y=>'<div class="row-item"><div class="av" style="width:30px;height:30px;background:var(--green-light);color:var(--green-dark);font-size:11px">'+(y.fields['Name']||'?').charAt(0)+'</div><div style="flex:1"><div style="font-size:12px;font-weight:600">'+y.fields['Name']+'</div><div style="font-size:11px;color:var(--muted)">'+(y.fields['Site']||'')+'</div></div><span class="badge '+((y.fields['Tier']||1)==1?'badge-green':(y.fields['Tier']||1)==2?'badge-amber':'badge-purple')+'">Tier '+(y.fields['Tier']||1)+'</span></div>').join('')+'</div>').join('');
+}
+
+// LCM ANNOUNCEMENT
+async function sendLCMAnnouncement(){
+  const msg=document.getElementById('lcm-ann-body').value;const subject=document.getElementById('lcm-ann-subject').value;
+  if(!msg||!subject){toast('Please enter a subject and message');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Sending...';
+  await atCreate('Town Hall Events',{Title:subject,Message:msg,Date:new Date().toISOString().split('T')[0],From:currentUser.name,Audience:'coaches',Type:'Announcement'});
+  document.getElementById('lcm-ann-sent').style.display='block';document.getElementById('lcm-ann-body').value='';document.getElementById('lcm-ann-subject').value='';
+  btn.disabled=false;btn.textContent='Send to All Coaches';toast('Message sent to coaches');
+  const listData=await atFetch('Town Hall Events','?filterByFormula={Audience}="coaches"&fields[]=Title&fields[]=Date&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=3');
+  const listEl=document.getElementById('lcm-ann-list');
+  listEl.innerHTML=(listData.records||[]).map(r=>'<div class="card" style="margin-bottom:8px"><div style="font-size:13px;font-weight:600">'+(r.fields['Title']||'')+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px">'+(r.fields['Date']||'')+'</div></div>').join('');
+}
+async function aiDraftLCMAnnouncement(){
+  const subject=document.getElementById('lcm-ann-subject').value||'general update';
+  const btn=event.target;btn.disabled=true;btn.textContent='Drafting...';
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,system:'Write brief professional messages from a Life Coach Manager to life coaches at YESS ILP nonprofit. Under 80 words.',messages:[{role:'user',content:'Draft a message to life coaches about: '+subject}]})});const data=await resp.json();document.getElementById('lcm-ann-body').value=data.content[0].text;}
+  catch(e){toast('AI unavailable');}
+  btn.disabled=false;btn.textContent='✪ AI Draft';
+}
+
+// MOBILE MENU
+function toggleMobileMenu(){
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('mob-overlay').classList.toggle('open');
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+document.getElementById('p4').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>
